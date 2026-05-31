@@ -15,8 +15,7 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/auth/register', [
             'name' => 'New Tenant',
             'email' => 'tenant@example.com',
-            'phone' => '01000000001',
-            'role' => 'tenant',
+            'role' => 'user',
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
@@ -27,7 +26,7 @@ class AuthApiTest extends TestCase
             'token',
             'token_type',
         ]);
-        $response->assertJsonPath('user.role', 'tenant');
+        $response->assertJsonPath('user.role', 'user');
         $response->assertJsonPath('token_type', 'Bearer');
     }
 

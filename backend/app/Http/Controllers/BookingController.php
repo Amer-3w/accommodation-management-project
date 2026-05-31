@@ -5,16 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $tenant = $this->requireRole($request, 'tenant');
+        $user = $this->requireRole($request, 'user');
 
-        $bookings = Booking::with(['tenant', 'listing.owner', 'payment'])
-            ->where('tenant_id', $tenant->id)
+        $bookings = Booking::with(['user', 'property.owner', 'property.images', 'payment'])
+            ->where('user_id', $user->id)
             ->latest()
             ->get();
 
@@ -25,92 +26,105 @@ class BookingController extends Controller
     {
         $this->ensureBookingOwnership($request, $booking);
 
-        return response()->json($booking->load(['tenant', 'listing.owner', 'payment']));
+        return response()->json($booking->load(['user', 'property.owner', 'property.images', 'payment']));
     }
 
     public function store(Request $request): JsonResponse
     {
-        $tenant = $this->requireRole($request, 'tenant');
+        $user = $this->requireRole($request, 'user');
+
+        $this->normalizeBookingPayload($request);
 
         $validated = $request->validate([
-            'listing_id' => ['required', 'exists:listings,id'],
-            'check_in_date' => ['required', 'date'],
-            'check_out_date' => ['required', 'date', 'after_or_equal:check_in_date'],
+            'property_id' => ['required', 'exists:properties,id'],
+            'date_from' => ['required', 'date'],
+            'date_to' => ['required', 'date', 'after_or_equal:date_from'],
             'guests' => ['nullable', 'integer', 'min:1'],
             'total_price' => ['required', 'numeric', 'min:0'],
-            'status' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in(['pending', 'confirmed', 'cancelled', 'paid', 'completed'])],
             'notes' => ['nullable', 'string'],
         ]);
 
         $this->ensureListingIsAvailable(
-            (int) $validated['listing_id'],
-            $validated['check_in_date'],
-            $validated['check_out_date']
+            (int) $validated['property_id'],
+            $validated['date_from'],
+            $validated['date_to']
         );
 
         $booking = Booking::create([
-            'tenant_id' => $tenant->id,
-            'listing_id' => $validated['listing_id'],
-            'check_in_date' => $validated['check_in_date'],
-            'check_out_date' => $validated['check_out_date'],
+            'user_id' => $user->id,
+            'property_id' => $validated['property_id'],
+            'date_from' => $validated['date_from'],
+            'date_to' => $validated['date_to'],
             'guests' => $validated['guests'] ?? 1,
             'total_price' => $validated['total_price'],
             'status' => $validated['status'] ?? 'pending',
             'notes' => $validated['notes'] ?? null,
         ]);
 
-        return response()->json($booking->load(['tenant', 'listing.owner', 'payment']), 201);
+        return response()->json($booking->load(['user', 'property.owner', 'property.images', 'payment']), 201);
     }
 
     public function update(Request $request, Booking $booking): JsonResponse
     {
         $this->ensureBookingOwnership($request, $booking);
 
+        $this->normalizeBookingPayload($request);
+
         $validated = $request->validate([
-            'listing_id' => ['required', 'exists:listings,id'],
-            'check_in_date' => ['required', 'date'],
-            'check_out_date' => ['required', 'date', 'after_or_equal:check_in_date'],
+            'property_id' => ['required', 'exists:properties,id'],
+            'date_from' => ['required', 'date'],
+            'date_to' => ['required', 'date', 'after_or_equal:date_from'],
             'guests' => ['nullable', 'integer', 'min:1'],
             'total_price' => ['required', 'numeric', 'min:0'],
-            'status' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in(['pending', 'confirmed', 'cancelled', 'paid', 'completed'])],
             'notes' => ['nullable', 'string'],
         ]);
 
         $this->ensureListingIsAvailable(
-            (int) $validated['listing_id'],
-            $validated['check_in_date'],
-            $validated['check_out_date'],
+            (int) $validated['property_id'],
+            $validated['date_from'],
+            $validated['date_to'],
             $booking->id
         );
 
         $booking->update([
-            'tenant_id' => $booking->tenant_id,
-            'listing_id' => $validated['listing_id'],
-            'check_in_date' => $validated['check_in_date'],
-            'check_out_date' => $validated['check_out_date'],
+            'user_id' => $booking->user_id,
+            'property_id' => $validated['property_id'],
+            'date_from' => $validated['date_from'],
+            'date_to' => $validated['date_to'],
             'guests' => $validated['guests'] ?? 1,
             'total_price' => $validated['total_price'],
             'status' => $validated['status'] ?? 'pending',
             'notes' => $validated['notes'] ?? null,
         ]);
 
-        return response()->json($booking->load(['tenant', 'listing.owner', 'payment']));
+        return response()->json($booking->load(['user', 'property.owner', 'property.images', 'payment']));
     }
 
-    private function ensureListingIsAvailable(int $listingId, string $checkInDate, string $checkOutDate, ?int $ignoreBookingId = null): void
+    private function normalizeBookingPayload(Request $request): void
+    {
+        $request->merge([
+            'property_id' => $request->input('property_id', $request->input('listing_id')),
+            'date_from' => $request->input('date_from', $request->input('check_in_date')),
+            'date_to' => $request->input('date_to', $request->input('check_out_date')),
+        ]);
+    }
+
+    private function ensureListingIsAvailable(int $propertyId, string $dateFrom, string $dateTo, ?int $ignoreBookingId = null): void
     {
         $isConflictingBooking = Booking::query()
-            ->where('listing_id', $listingId)
+            ->where('property_id', $propertyId)
             ->when($ignoreBookingId !== null, function ($bookingQuery) use ($ignoreBookingId): void {
                 $bookingQuery->where('id', '!=', $ignoreBookingId);
             })
-            ->whereDate('check_in_date', '<=', $checkOutDate)
-            ->whereDate('check_out_date', '>=', $checkInDate)
+            ->whereDate('date_from', '<=', $dateTo)
+            ->whereDate('date_to', '>=', $dateFrom)
             ->exists();
 
         if ($isConflictingBooking) {
             throw ValidationException::withMessages([
-                'listing_id' => ['The selected listing is already booked for the chosen dates.'],
+                'property_id' => ['The selected property is already booked for the chosen dates.'],
             ]);
         }
     }

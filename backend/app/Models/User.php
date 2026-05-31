@@ -5,10 +5,11 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Message;
 
 class User extends Authenticatable
 {
@@ -23,9 +24,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'phone',
         'role',
-        'status',
         'password',
     ];
 
@@ -47,9 +46,13 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 
     public function isOwner(): bool
@@ -57,18 +60,43 @@ class User extends Authenticatable
         return $this->role === 'owner';
     }
 
-    public function isTenant(): bool
+    public function isUser(): bool
     {
-        return $this->role === 'tenant';
+        return $this->role === 'user';
     }
 
-    public function listings(): HasMany
+    public function isTenant(): bool
+    {
+        return $this->isUser();
+    }
+
+    public function properties(): HasMany
     {
         return $this->hasMany(Listing::class, 'owner_id');
     }
 
+    public function listings(): HasMany
+    {
+        return $this->properties();
+    }
+
     public function bookings(): HasMany
     {
-        return $this->hasMany(Booking::class, 'tenant_id');
+        return $this->hasMany(Booking::class, 'user_id');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class, 'user_id');
+    }
+
+    public function sentMessages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function receivedMessages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
     }
 }

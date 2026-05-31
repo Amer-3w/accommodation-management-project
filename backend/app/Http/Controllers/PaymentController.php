@@ -12,11 +12,11 @@ class PaymentController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $tenant = $this->requireRole($request, 'tenant');
+        $user = $this->requireRole($request, 'user');
 
-        $payments = Payment::with(['booking.tenant', 'booking.listing.owner'])
-            ->whereHas('booking', function ($bookingQuery) use ($tenant): void {
-                $bookingQuery->where('tenant_id', $tenant->id);
+        $payments = Payment::with(['booking.user', 'booking.property.owner', 'booking.property.images'])
+            ->whereHas('booking', function ($bookingQuery) use ($user): void {
+                $bookingQuery->where('user_id', $user->id);
             })
             ->latest()
             ->get();
@@ -28,43 +28,47 @@ class PaymentController extends Controller
     {
         $this->ensurePaymentOwnership($request, $payment);
 
-        return response()->json($payment->load(['booking.tenant', 'booking.listing.owner']));
+        return response()->json($payment->load(['booking.user', 'booking.property.owner', 'booking.property.images']));
     }
 
     public function store(Request $request): JsonResponse
     {
-        $tenant = $this->requireRole($request, 'tenant');
+        $user = $this->requireRole($request, 'user');
+
+        $this->normalizePaymentPayload($request);
 
         $validated = $request->validate([
             'booking_id' => ['required', 'exists:bookings,id', 'unique:payments,booking_id'],
             'amount' => ['required', 'numeric', 'min:0'],
-            'payment_method' => ['required', 'string', 'max:255'],
-            'status' => ['nullable', 'string', 'max:255'],
-            'transaction_reference' => ['nullable', 'string', 'max:255'],
+            'method' => ['required', Rule::in(['cash', 'card'])],
+            'status' => ['nullable', Rule::in(['pending', 'paid', 'failed', 'refunded'])],
+            'reference' => ['required', 'string', 'max:255', 'unique:payments,reference'],
             'paid_at' => ['nullable', 'date'],
             'notes' => ['nullable', 'string'],
         ]);
 
-        $booking = Booking::with('listing')->findOrFail($validated['booking_id']);
+        $booking = Booking::with('property')->findOrFail($validated['booking_id']);
 
-        abort_unless((int) $booking->tenant_id === (int) $tenant->id, 403);
+        abort_unless((int) $booking->user_id === (int) $user->id, 403);
 
         $payment = Payment::create([
             'booking_id' => $validated['booking_id'],
             'amount' => $validated['amount'],
-            'payment_method' => $validated['payment_method'],
+            'method' => $validated['method'],
             'status' => $validated['status'] ?? 'pending',
-            'transaction_reference' => $validated['transaction_reference'] ?? null,
+            'reference' => $validated['reference'],
             'paid_at' => $validated['paid_at'] ?? null,
             'notes' => $validated['notes'] ?? null,
         ]);
 
-        return response()->json($payment->load(['booking.tenant', 'booking.listing.owner']), 201);
+        return response()->json($payment->load(['booking.user', 'booking.property.owner', 'booking.property.images']), 201);
     }
 
     public function update(Request $request, Payment $payment): JsonResponse
     {
-        $tenant = $this->ensurePaymentOwnership($request, $payment);
+        $user = $this->ensurePaymentOwnership($request, $payment);
+
+        $this->normalizePaymentPayload($request);
 
         $validated = $request->validate([
             'booking_id' => [
@@ -73,28 +77,36 @@ class PaymentController extends Controller
                 Rule::unique('payments', 'booking_id')->ignore($payment->id),
             ],
             'amount' => ['required', 'numeric', 'min:0'],
-            'payment_method' => ['required', 'string', 'max:255'],
-            'status' => ['nullable', 'string', 'max:255'],
-            'transaction_reference' => ['nullable', 'string', 'max:255'],
+            'method' => ['required', Rule::in(['cash', 'card'])],
+            'status' => ['nullable', Rule::in(['pending', 'paid', 'failed', 'refunded'])],
+            'reference' => ['required', 'string', 'max:255', Rule::unique('payments', 'reference')->ignore($payment->id)],
             'paid_at' => ['nullable', 'date'],
             'notes' => ['nullable', 'string'],
         ]);
 
-        $booking = Booking::with('listing')->findOrFail($validated['booking_id']);
+        $booking = Booking::with('property')->findOrFail($validated['booking_id']);
 
-        abort_unless((int) $booking->tenant_id === (int) $tenant->id, 403);
+        abort_unless((int) $booking->user_id === (int) $user->id, 403);
 
         $payment->update([
             'booking_id' => $validated['booking_id'],
             'amount' => $validated['amount'],
-            'payment_method' => $validated['payment_method'],
+            'method' => $validated['method'],
             'status' => $validated['status'] ?? 'pending',
-            'transaction_reference' => $validated['transaction_reference'] ?? null,
+            'reference' => $validated['reference'],
             'paid_at' => $validated['paid_at'] ?? null,
             'notes' => $validated['notes'] ?? null,
         ]);
 
-        return response()->json($payment->load(['booking.tenant', 'booking.listing.owner']));
+        return response()->json($payment->load(['booking.user', 'booking.property.owner', 'booking.property.images']));
+    }
+
+    private function normalizePaymentPayload(Request $request): void
+    {
+        $request->merge([
+            'method' => $request->input('method', $request->input('payment_method')),
+            'reference' => $request->input('reference', $request->input('transaction_reference')),
+        ]);
     }
 
     public function destroy(Request $request, Payment $payment): JsonResponse

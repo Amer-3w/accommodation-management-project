@@ -14,23 +14,23 @@ class BookingAvailabilityTest extends TestCase
 
     public function test_store_rejects_overlapping_booking_dates(): void
     {
-        [, $tenant, $listing] = $this->createListingContext();
+        [, $user, $listing] = $this->createPropertyContext();
 
         Booking::create([
-            'tenant_id' => $tenant->id,
-            'listing_id' => $listing->id,
-            'check_in_date' => '2026-05-10',
-            'check_out_date' => '2026-05-15',
+            'user_id' => $user->id,
+            'property_id' => $listing->id,
+            'date_from' => '2026-05-10',
+            'date_to' => '2026-05-15',
             'guests' => 1,
             'total_price' => 500,
             'status' => 'confirmed',
             'notes' => null,
         ]);
 
-        $response = $this->actingAs($tenant)->postJson('/api/bookings', [
-            'listing_id' => $listing->id,
-            'check_in_date' => '2026-05-12',
-            'check_out_date' => '2026-05-18',
+        $response = $this->actingAs($user)->postJson('/api/bookings', [
+            'property_id' => $listing->id,
+            'date_from' => '2026-05-12',
+            'date_to' => '2026-05-18',
             'guests' => 2,
             'total_price' => 700,
             'status' => 'pending',
@@ -38,18 +38,18 @@ class BookingAvailabilityTest extends TestCase
         ]);
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['listing_id']);
+        $response->assertJsonValidationErrors(['property_id']);
     }
 
     public function test_update_rejects_overlapping_booking_dates(): void
     {
-        [, $tenant, $listing] = $this->createListingContext();
+        [, $user, $listing] = $this->createPropertyContext();
 
         Booking::create([
-            'tenant_id' => $tenant->id,
-            'listing_id' => $listing->id,
-            'check_in_date' => '2026-05-10',
-            'check_out_date' => '2026-05-15',
+            'user_id' => $user->id,
+            'property_id' => $listing->id,
+            'date_from' => '2026-05-10',
+            'date_to' => '2026-05-15',
             'guests' => 1,
             'total_price' => 500,
             'status' => 'confirmed',
@@ -57,20 +57,20 @@ class BookingAvailabilityTest extends TestCase
         ]);
 
         $bookingToUpdate = Booking::create([
-            'tenant_id' => $tenant->id,
-            'listing_id' => $listing->id,
-            'check_in_date' => '2026-05-20',
-            'check_out_date' => '2026-05-25',
+            'user_id' => $user->id,
+            'property_id' => $listing->id,
+            'date_from' => '2026-05-20',
+            'date_to' => '2026-05-25',
             'guests' => 1,
             'total_price' => 500,
             'status' => 'pending',
             'notes' => null,
         ]);
 
-        $response = $this->actingAs($tenant)->putJson('/api/bookings/' . $bookingToUpdate->id, [
-            'listing_id' => $listing->id,
-            'check_in_date' => '2026-05-12',
-            'check_out_date' => '2026-05-18',
+        $response = $this->actingAs($user)->putJson('/api/bookings/' . $bookingToUpdate->id, [
+            'property_id' => $listing->id,
+            'date_from' => '2026-05-12',
+            'date_to' => '2026-05-18',
             'guests' => 1,
             'total_price' => 500,
             'status' => 'pending',
@@ -78,36 +78,28 @@ class BookingAvailabilityTest extends TestCase
         ]);
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['listing_id']);
+        $response->assertJsonValidationErrors(['property_id']);
     }
 
-    private function createListingContext(): array
+    private function createPropertyContext(): array
     {
         $owner = User::factory()->create([
             'role' => 'owner',
         ]);
 
         $tenant = User::factory()->create([
-            'role' => 'tenant',
+            'role' => 'user',
         ]);
 
         $listing = Listing::create([
             'owner_id' => $owner->id,
             'title' => 'Test Room',
-            'listing_type' => 'room',
-            'description' => 'Test listing for booking availability.',
-            'city' => 'Cairo',
-            'area' => 'Nasr City',
-            'address' => 'Test Address',
             'price' => 500,
-            'bedrooms' => 1,
-            'bathrooms' => 1,
-            'furnished' => false,
-            'gender_preference' => 'any',
-            'cover_image' => null,
-            'status' => 'published',
-            'available_from' => '2026-05-01',
-            'is_featured' => false,
+            'location' => 'Cairo - Nasr City',
+            'description' => 'Test property for booking availability.',
+            'rooms' => 1,
+            'amenities' => ['wifi'],
+            'status' => 'active',
         ]);
 
         return [$owner, $tenant, $listing];

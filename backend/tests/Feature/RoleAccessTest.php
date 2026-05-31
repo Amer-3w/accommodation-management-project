@@ -12,65 +12,49 @@ class RoleAccessTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_owner_can_create_listing(): void
+    public function test_owner_can_create_property(): void
     {
         $owner = User::factory()->owner()->create();
 
-        $response = $this->actingAs($owner)->postJson('/api/listings', [
+        $response = $this->actingAs($owner)->postJson('/api/properties', [
             'title' => 'Owner Listing',
-            'listing_type' => 'room',
-            'description' => 'Created by the owner account.',
-            'city' => 'Cairo',
-            'area' => 'Nasr City',
-            'address' => 'Test Address',
             'price' => 600,
-            'bedrooms' => 1,
-            'bathrooms' => 1,
-            'furnished' => false,
-            'gender_preference' => 'any',
-            'cover_image' => null,
-            'status' => 'published',
-            'available_from' => '2026-05-01',
-            'is_featured' => false,
+            'location' => 'Cairo - Nasr City',
+            'description' => 'Created by the owner account.',
+            'rooms' => 1,
+            'amenities' => ['wifi', 'furnished'],
+            'status' => 'active',
         ]);
 
         $response->assertStatus(201);
         $response->assertJsonPath('owner.id', $owner->id);
     }
 
-    public function test_tenant_cannot_create_listing(): void
+    public function test_user_cannot_create_property(): void
     {
-        $tenant = User::factory()->tenant()->create();
+        $user = User::factory()->user()->create();
 
-        $response = $this->actingAs($tenant)->postJson('/api/listings', [
-            'title' => 'Tenant Listing',
-            'listing_type' => 'room',
-            'description' => 'This request should be blocked.',
-            'city' => 'Cairo',
-            'area' => 'Nasr City',
-            'address' => 'Test Address',
+        $response = $this->actingAs($user)->postJson('/api/properties', [
+            'title' => 'User Property',
             'price' => 600,
-            'bedrooms' => 1,
-            'bathrooms' => 1,
-            'furnished' => false,
-            'gender_preference' => 'any',
-            'cover_image' => null,
-            'status' => 'published',
-            'available_from' => '2026-05-01',
-            'is_featured' => false,
+            'location' => 'Cairo - Nasr City',
+            'description' => 'This request should be blocked.',
+            'rooms' => 1,
+            'amenities' => ['wifi'],
+            'status' => 'active',
         ]);
 
         $response->assertStatus(403);
     }
 
-    public function test_tenant_can_create_booking(): void
+    public function test_user_can_create_booking(): void
     {
-        [$owner, $tenant, $listing] = $this->createListingContext();
+        [$owner, $user, $listing] = $this->createPropertyContext();
 
-        $response = $this->actingAs($tenant)->postJson('/api/bookings', [
-            'listing_id' => $listing->id,
-            'check_in_date' => '2026-06-10',
-            'check_out_date' => '2026-06-15',
+        $response = $this->actingAs($user)->postJson('/api/bookings', [
+            'property_id' => $listing->id,
+            'date_from' => '2026-06-10',
+            'date_to' => '2026-06-15',
             'guests' => 2,
             'total_price' => 900,
             'status' => 'pending',
@@ -78,17 +62,17 @@ class RoleAccessTest extends TestCase
         ]);
 
         $response->assertStatus(201);
-        $response->assertJsonPath('tenant.id', $tenant->id);
+        $response->assertJsonPath('user.id', $user->id);
     }
 
     public function test_owner_cannot_create_booking(): void
     {
-        [$owner, $tenant, $listing] = $this->createListingContext();
+        [$owner, $user, $listing] = $this->createPropertyContext();
 
         $response = $this->actingAs($owner)->postJson('/api/bookings', [
-            'listing_id' => $listing->id,
-            'check_in_date' => '2026-06-10',
-            'check_out_date' => '2026-06-15',
+            'property_id' => $listing->id,
+            'date_from' => '2026-06-10',
+            'date_to' => '2026-06-15',
             'guests' => 2,
             'total_price' => 900,
             'status' => 'pending',
@@ -98,27 +82,27 @@ class RoleAccessTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_tenant_can_create_payment_for_own_booking(): void
+    public function test_user_can_create_payment_for_own_booking(): void
     {
-        [, $tenant, $listing] = $this->createListingContext();
+        [, $user, $listing] = $this->createPropertyContext();
 
         $booking = Booking::create([
-            'tenant_id' => $tenant->id,
-            'listing_id' => $listing->id,
-            'check_in_date' => '2026-06-10',
-            'check_out_date' => '2026-06-15',
+            'user_id' => $user->id,
+            'property_id' => $listing->id,
+            'date_from' => '2026-06-10',
+            'date_to' => '2026-06-15',
             'guests' => 2,
             'total_price' => 900,
             'status' => 'confirmed',
             'notes' => null,
         ]);
 
-        $response = $this->actingAs($tenant)->postJson('/api/payments', [
+        $response = $this->actingAs($user)->postJson('/api/payments', [
             'booking_id' => $booking->id,
             'amount' => 900,
-            'payment_method' => 'card',
+            'method' => 'card',
             'status' => 'paid',
-            'transaction_reference' => 'TXN-2026-001',
+            'reference' => 'TXN-2026-001',
             'paid_at' => '2026-06-09 12:00:00',
             'notes' => null,
         ]);
@@ -127,30 +111,22 @@ class RoleAccessTest extends TestCase
         $response->assertJsonPath('booking.id', $booking->id);
     }
 
-    private function createListingContext(): array
+    private function createPropertyContext(): array
     {
         $owner = User::factory()->owner()->create();
-        $tenant = User::factory()->tenant()->create();
+        $user = User::factory()->user()->create();
 
         $listing = Listing::create([
             'owner_id' => $owner->id,
             'title' => 'Test Room',
-            'listing_type' => 'room',
-            'description' => 'Test listing for access control.',
-            'city' => 'Cairo',
-            'area' => 'Nasr City',
-            'address' => 'Test Address',
             'price' => 500,
-            'bedrooms' => 1,
-            'bathrooms' => 1,
-            'furnished' => false,
-            'gender_preference' => 'any',
-            'cover_image' => null,
-            'status' => 'published',
-            'available_from' => '2026-05-01',
-            'is_featured' => false,
+            'location' => 'Cairo - Nasr City',
+            'description' => 'Test property for access control.',
+            'rooms' => 1,
+            'amenities' => ['wifi'],
+            'status' => 'active',
         ]);
 
-        return [$owner, $tenant, $listing];
+        return [$owner, $user, $listing];
     }
 }

@@ -17,17 +17,20 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:255', 'unique:users,phone'],
-            'role' => ['nullable', Rule::in(['owner', 'tenant'])],
+            'role' => ['nullable', Rule::in(['owner', 'user', 'tenant'])],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
+
+        $role = $validated['role'] ?? 'user';
+
+        if ($role === 'tenant') {
+            $role = 'user';
+        }
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'phone' => $validated['phone'] ?? null,
-            'role' => $validated['role'] ?? 'tenant',
-            'status' => 'active',
+            'role' => $role,
             'password' => Hash::make($validated['password']),
         ]);
 

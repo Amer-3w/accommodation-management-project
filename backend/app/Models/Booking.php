@@ -12,34 +12,44 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'tenant_id',
-        'listing_id',
-        'check_in_date',
-        'check_out_date',
+        'user_id',
+        'property_id',
+        'date_from',
+        'date_to',
         'guests',
-        'total_price',
         'status',
         'notes',
+        'total_price',
     ];
 
     protected function casts(): array
     {
         return [
-            'check_in_date' => 'date',
-            'check_out_date' => 'date',
+            'date_from' => 'date',
+            'date_to' => 'date',
             'guests' => 'integer',
             'total_price' => 'decimal:2',
         ];
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function tenant(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'tenant_id');
+        return $this->user();
+    }
+
+    public function property(): BelongsTo
+    {
+        return $this->belongsTo(Listing::class, 'property_id');
     }
 
     public function listing(): BelongsTo
     {
-        return $this->belongsTo(Listing::class);
+        return $this->property();
     }
 
     public function payment(): HasOne

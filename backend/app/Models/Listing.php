@@ -6,37 +6,31 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\PropertyImage;
 
 class Listing extends Model
 {
     use HasFactory;
 
+    protected $table = 'properties';
+
     protected $fillable = [
         'owner_id',
         'title',
-        'listing_type',
-        'description',
-        'city',
-        'area',
-        'address',
         'price',
-        'bedrooms',
-        'bathrooms',
-        'furnished',
-        'gender_preference',
-        'cover_image',
+        'location',
+        'description',
+        'rooms',
+        'amenities',
         'status',
-        'available_from',
-        'is_featured',
     ];
 
     protected function casts(): array
     {
         return [
             'price' => 'decimal:2',
-            'furnished' => 'boolean',
-            'is_featured' => 'boolean',
-            'available_from' => 'date',
+            'rooms' => 'integer',
+            'amenities' => 'array',
         ];
     }
 
@@ -45,8 +39,18 @@ class Listing extends Model
         return $this->belongsTo(User::class, 'owner_id');
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(PropertyImage::class, 'property_id')->orderBy('sort_order');
+    }
+
     public function bookings(): HasMany
     {
-        return $this->hasMany(Booking::class);
+        return $this->hasMany(Booking::class, 'property_id');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class, 'property_id');
     }
 }
