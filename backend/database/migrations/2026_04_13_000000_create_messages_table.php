@@ -13,6 +13,8 @@ return new class extends Migration
             $table->foreignId('sender_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('receiver_id')->constrained('users')->cascadeOnDelete();
             $table->text('message');
+            $table->enum('status', ['sent', 'delivered', 'seen'])->default('sent');
+            $table->string('attachment_path')->nullable();
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
 

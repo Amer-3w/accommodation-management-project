@@ -8,23 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('reviews', function (Blueprint $table) {
+        Schema::create('favorites', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('property_id')->constrained('properties')->cascadeOnDelete();
-            $table->unsignedTinyInteger('rating');
-            $table->text('comment')->nullable();
-            $table->text('owner_reply')->nullable();
-            $table->timestamp('owner_replied_at')->nullable();
-            $table->timestamp('moderated_at')->nullable();
             $table->timestamps();
 
-            $table->unique(['user_id', 'property_id'], 'reviews_user_property_unique');
+            $table->unique(['user_id', 'property_id'], 'favorites_user_property_unique');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('reviews');
+        Schema::dropIfExists('favorites');
     }
 };

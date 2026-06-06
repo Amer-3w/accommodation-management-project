@@ -1,315 +1,74 @@
 Graduation Project Backend Presentation Guide
 
 1. Project summary
-This project is the backend of my graduation app. I use Laravel to receive requests from the mobile app, process the data, and return JSON responses. The source of truth for the database is schema.sql.
+This project is the backend of my graduation app. I built it with Laravel so it can receive requests from the Flutter app, process the data, and return JSON responses. The database source of truth is schema.sql.
 
-2. My main idea
-I built the backend so the app can handle authentication, property management, booking, payment, messages, and reviews in a clean and secure way. The backend is role-based, so each user only works with the data they own.
+2. Stack
+I used Laravel, PHP, XAMPP, MySQL, Composer, Sanctum, and GitHub. XAMPP gives me the local PHP and MySQL environment on Windows, and GitHub keeps the code synchronized for the team.
 
-3. Why I use Laravel
-I use Laravel because it gives me routing, validation, Eloquent models, authentication, and API responses in one organized framework. That helps me build the project faster and keep the code easier to explain during the defense.
+3. Source of truth
+I treat schema.sql as the real database design. It defines the tables the backend must follow, including users, properties, property_images, bookings, payments, messages, reviews, favorites, support_messages, user_whatsapp_numbers, and personal_access_tokens.
 
-4. Why I use XAMPP
-I use XAMPP because it gives me PHP and MySQL locally on Windows. That lets me test the backend on my own machine before deployment. In this project, XAMPP is for local development only.
+4. Roles
+The main roles are admin, owner, and user. The owner manages properties. The user makes bookings, payments, favorites, messages, and reviews. The admin handles management tasks.
 
-5. Why I use Composer and GitHub
-I use Composer to install Laravel and its packages. I use GitHub to store the code, share it with the team, and track changes safely.
+5. Workflow
+First the user registers or logs in. Then Sanctum returns a bearer token. After that, the app can read properties, view details, create bookings, pay, send messages, save favorites, submit reviews, manage WhatsApp numbers, and contact support.
 
-6. What schema.sql means
-schema.sql is the source database design. It defines the real tables that the backend must follow. In this project, the important tables are users, properties, property_images, bookings, payments, messages, reviews, notifications, and personal_access_tokens.
+6. Authentication
+The API has register, login, me, update profile, and logout endpoints. Register creates the account, login returns a token, me returns the authenticated user, update profile edits the current account, and logout revokes the token.
 
-7. Main roles
-The user roles are admin, owner, and user. The owner creates and manages properties. The user makes bookings, payments, messages, and reviews. The admin role is reserved for management tasks and can be created manually or through seeding.
+7. Property layer
+The main accommodation table is properties. In the code, the model name is still Listing for continuity, but it points to the properties table. A property stores owner data, title, price, location, description, rooms, bathrooms, discounts, contact fields, status, and availability.
 
-8. Main relationships
-One user can own many properties. One property can have many images, many bookings, and many reviews. One user can create many bookings, messages, and reviews. One booking has one payment.
+8. Property images
+The property_images table stores multiple images for one property. This keeps the database normalized because one property can have many images without repeating the property record.
 
-9. Backend workflow step by step
-First, the user registers or logs in. Then the app receives a Sanctum token. After that, the user can read properties, open a property detail page, create a booking, make a payment, send messages, and add reviews. Every protected action checks the token and the user role.
+9. Booking layer
+The bookings table stores user_id, property_id, date_from, date_to, guests, notes, base_price, price_period, number_of_days, base_total, discount_percent, discount_amount, service_fee, security_deposit, final_total, and status. I also added overlap checking so the same property cannot be booked for conflicting dates.
 
-10. Authentication layer
-I use Sanctum for token-based authentication. The API has register, login, me, and logout endpoints. Register creates a new account, login returns a token, me returns the current authenticated user, and logout revokes the token.
+10. Booking pricing
+The backend now calculates the booking breakdown from the property data when the frontend does not send every value. That keeps the price fields consistent and matches the schema-driven design.
 
-11. Property layer
-The schema uses the properties table as the main accommodation table. In the code, some older file names still say Listing for continuity, but the actual data now belongs to the properties table. A property stores owner_id, title, price, location, description, rooms, amenities, and status.
+11. Payment layer
+The payments table stores one payment for one booking. It includes amount, payment method, status, transaction reference, paid_at, and notes. I kept booking_id unique so one booking cannot have duplicate payments.
 
-12. Property images
-The property_images table stores multiple images for one property. Each image has a path and sort_order. This keeps the database normalized, because one property can have more than one image without repeating the property data.
+12. Messages
+The messages table supports chat between users. I added message status, attachment_path, and read_at handling so messages can move through sent, delivered, and seen states.
 
-13. Booking layer
-The bookings table stores user_id, property_id, date_from, date_to, guests, total_price, status, and notes. I also added overlap checking so the same property cannot be booked for conflicting dates.
+13. Reviews
+The reviews table stores rating and comment for each property. I also added owner reply, reply timestamp, and moderation timestamp so the owner and admin can manage feedback.
 
-14. Payment layer
-The payments table stores one payment for one booking. It includes amount, method, status, reference, paid_at, and notes. I made the booking_id unique so one booking cannot have duplicate payments.
+14. Favorites and WhatsApp numbers
+I added favorites so a user can save properties, and user_whatsapp_numbers so a user can store more than one WhatsApp contact number. Both are now exposed through the API.
 
-15. Messages and reviews
-The messages table supports chat between users. The reviews table stores rating and comment for a property. These tables are part of the source schema, so the backend is prepared for chat and feedback features as part of the same system.
+15. Support messages
+I added support_messages for the contact form or help requests. A guest or authenticated user can send a support message, and the admin can review or update it.
 
-16. Validation and security
-I validate every request before saving it. I also check ownership so the owner can manage only their properties, and the user can manage only their own bookings, payments, messages, and reviews. This prevents unauthorized access.
+16. Security
+I validate requests before saving them, and I check ownership so each user can manage only their own data. That protects properties, bookings, payments, messages, reviews, favorites, and profile data.
 
-17. Database and runtime settings
-I changed the environment to match the schema-driven design. Session, cache, and queue are kept simple with file and sync drivers, so the database stays focused on the business tables from schema.sql.
+17. What I changed
+I updated the migrations, models, controllers, routes, factory, and seeder so they follow schema.sql. I also added the new API endpoints needed for the Flutter app.
 
-18. What I changed in the backend
-I updated the migrations, models, controllers, routes, factory, and seeder so they follow the source schema. I also added API endpoints for properties, bookings, payments, reviews, messages, and property images.
+18. Testing
+I ran the Laravel test suite with XAMPP PHP, and all tests passed: 12 tests and 39 assertions. That confirms authentication, booking overlap checks, role access, and payment ownership still work after the schema update.
 
 19. What I can say in the defense
-If an instructor asks me what I did, I can say: I took the provided schema as the source of truth, aligned the Laravel backend with it, and protected the data with authentication, validation, and role-based access control.
+If I am asked what I did, I can say: I took schema.sql as the source of truth, aligned the Laravel backend with it, added role-based protection and validation, and prepared the API for the Flutter interface.
 
-20. Common instructor questions and short answers
+20. Short Q&A
 What is the source of the database?
 I use schema.sql as the source of truth.
 
 Why did I use Laravel?
-Because it gives me a clean structure for API, validation, Eloquent, and authentication.
+Because it gives me routing, validation, Eloquent, Sanctum authentication, and clean API responses.
 
 How do I protect data?
-I use Sanctum tokens and role/ownership checks.
+I use Sanctum plus role and ownership checks.
 
 How do I prevent double booking?
-I check overlapping dates before creating or updating a booking.
-
-How do I store payments?
-I store one payment for one booking with a unique reference.
-
-What is the role of XAMPP?
-It provides the local PHP and MySQL environment during development.
+I check overlapping booking dates before saving.
 
 What remains after the backend?
-The next step is to connect the Flutter app to these protected API endpoints and finish any remaining UI logic.
-
-21. Short closing summary
-This backend is built with Laravel, PHP, XAMPP, Composer, and GitHub. The database follows schema.sql, the API is secured with Sanctum, and the data flow is organized around properties, bookings, payments, messages, and reviews.
-Graduation Project Backend Presentation Guide
-
-1. What this project is
-This project is the backend part of the graduation app. The backend is the server side that receives requests from the Flutter app, processes the data, and sends responses back.
-
-2. Why we use Laravel
-Laravel is a PHP framework. It gives us a clean structure for routing, validation, database work, authentication, and API responses. It saves time and keeps the project organized.
-
-3. Why we use XAMPP
-XAMPP provides PHP and MySQL locally on my computer. It lets me run and test the backend on Windows before putting it online or sharing it with the team.
-
-4. Why we use Composer
-Composer is the package manager for PHP. It installs Laravel and the libraries the project depends on.
-
-5. Why the backend folder has many files
-Laravel generates a full project structure automatically. The folders are not random. They separate the code into parts such as application logic, routes, configuration, database files, and public files.
-
-6. What I have added so far
-The project is still mostly Laravel's starter structure. The changes I made are the first backend customizations for this app.
-
-- backend/.env: changed the database connection to MySQL for XAMPP and set the session driver to file so the app can run locally.
-- backend/.env.example: copied the same local settings so the team can set up the project consistently.
-- backend/app/Models/User.php: added phone, role, and status to the user model so the app can store user contact info and account type.
-- backend/app/Models/Listing.php: added the first app model for room and accommodation data.
-- backend/app/Http/Controllers/ListingController.php: added the controller that reads listing data publicly and lets only the owner create, update, or delete their own listings as JSON.
-- backend/app/Models/Booking.php: added the booking model for reservation data and linked each booking to one payment.
-- backend/app/Http/Controllers/BookingController.php: added the controller that lets only the tenant manage their own bookings, returns payment info too, and blocks overlapping dates.
-- backend/app/Models/Payment.php: added the payment model for transaction data.
-- backend/app/Http/Controllers/PaymentController.php: added the controller that lets only the tenant manage payment data for their own bookings.
-- backend/app/Http/Controllers/AuthController.php: added token-based authentication with register, login, me, and logout endpoints for the mobile app.
-- backend/app/Http/Controllers/Controller.php: added shared ownership checks so the controllers can protect each user's own data.
-- backend/database/factories/UserFactory.php: added owner and tenant factory states for the role-based tests.
-- backend/database/migrations/2026_04_11_000000_create_listings_table.php: created the first app table for the listings shown in the app.
-- backend/database/migrations/2026_04_10_153417_add_role_phone_status_to_users_table.php: updated the users table structure to match the new fields.
-- backend/database/migrations/2026_04_15_000000_create_bookings_table.php: created the booking table for reservations.
-- backend/database/migrations/2026_04_15_120000_create_payments_table.php: created the payment table for transactions.
-- backend/database/migrations/2026_04_16_000000_create_personal_access_tokens_table.php: added the Sanctum token table so API tokens can be stored and revoked.
-- backend/routes/api.php: added API routes for reading listings and protected the booking, payment, and listing write actions with authentication.
-- backend/tests/Feature/BookingAvailabilityTest.php: added feature tests that prove overlapping booking dates are rejected on create and update.
-- backend/tests/Feature/RoleAccessTest.php: added feature tests that prove owners can manage listings, tenants can manage bookings, and payments stay tied to the right tenant.
-- backend/tests/Feature/AuthApiTest.php: added feature tests that prove register, login, authenticated me access, and logout token revocation all work.
-- backend/bootstrap/app.php: registered the API route file so Laravel loads it.
-- presentation-guide-en.txt and presentation-guide-ar.txt: added presentation notes so the backend can be explained clearly during the defense.
-
-7. How the User model works
-This file is the model for the users table and also handles authentication support.
-
-- namespace App\Models: keeps the class inside Laravel's models area.
-- use lines: import UserFactory, HasFactory, Authenticatable, HasMany, and Notifiable so the class can use them.
-- class User extends Authenticatable: makes the model work with Laravel's login and authentication system.
-- HasFactory: allows fake user records for testing and seeders.
-- fillable: lists the user columns that can be saved in bulk, such as name, email, phone, role, status, and password.
-- hidden: hides password and remember_token when the model is converted to JSON.
-- casts(): converts email_verified_at into a datetime and password into a hashed value.
-- listings(): defines that one user can have many listings.
-- hasMany(Listing::class, 'owner_id'): links the user to the listings table through the owner_id column.
-- HasMany: the relationship type returned by listings().
-- Listing::class: points to the Listing model class in the same App\Models namespace.
-
-8. How the Listing model works
-This file is the PHP model for the listings table. It does not create the table by itself; the migration does that. The model tells Laravel how to use the table.
-
-- namespace App\Models: keeps the class inside the models folder in Laravel.
-- use lines: import HasFactory, Model, and BelongsTo so the file can use them.
-- HasFactory: lets Laravel generate fake listing data for testing and seeders.
-- class Listing extends Model: makes this file an Eloquent model connected to the database.
-- fillable: lists the columns that are allowed to be saved in bulk.
-- casts(): converts values into useful PHP types like decimal, boolean, and date.
-- owner(): defines that one listing belongs to one user through owner_id.
-- BelongsTo: the relationship type returned by owner().
-- User::class: points to the User model class.
-
-9. How the migration works
-This file is the blueprint for the listings table. It does not write raw SQL directly. Laravel reads this PHP migration and converts it into SQL for MySQL.
-
-- return new class extends Migration: creates an anonymous migration class.
-- up(): the method Laravel runs when applying the migration.
-- Schema::create('listings', ...): tells Laravel to create the listings table.
-- Blueprint $table: the object used to define columns and constraints.
-- down(): the method Laravel runs when rolling back the migration.
-- Schema::dropIfExists('listings'): removes the listings table only if it exists.
-- This is not error handling. It is the reverse step for undoing the migration.
-
-10. How the Listing API works
-This is the next backend layer after the model and migration. The controller receives requests and returns listing data as JSON, and the API route file defines the endpoints.
-
-- backend/app/Http/Controllers/ListingController.php: handles requests for listings and returns JSON.
-- JsonResponse: the return type tells Laravel that these methods send JSON back to the frontend.
-- index(): starts with Listing::with('owner') so the owner data is loaded with each listing before the query runs.
-- filled(), has(), query(), and boolean() are Laravel request helper methods, while trim() is a normal PHP function.
-- $request->filled('search'): checks whether the search field exists and is not empty.
-- trim((string) $request->query('search')): removes extra spaces from the search text and makes sure it is treated as a string.
-- $query->where(function (Builder $listingQuery) use ($search): void { ... }): groups the search conditions so one keyword can match several columns.
-- where and orWhere with like: search the title, description, city, area, and address for similar text.
-- The filter if blocks add city, listing_type, status, gender_preference, furnished, is_featured, min_price, max_price, bedrooms, bathrooms, and available_from only when the user sends them.
-- match ($request->query('sort', 'latest')): chooses the sorting mode. latest() and oldest() are Laravel query methods, and orderBy() / orderByDesc() are used for custom sorting.
-- return response()->json($query->get()): executes the query and returns the final list as JSON.
-- show(Listing $listing): uses route model binding so Laravel injects the requested listing record, then load('owner') loads that listing's related user.
-- store(Request $request): validates the incoming data, creates a new listing record, and returns it as JSON.
-- update(Request $request, Listing $listing): validates the data again, updates the existing listing, and returns the updated listing.
-- destroy(Listing $listing): deletes the listing and returns a success message.
-- owner here is not the latest owner. It is the user connected to that listing through owner_id.
-- backend/routes/api.php: defines the GET, POST, PUT, and DELETE routes for the listings API.
-- backend/bootstrap/app.php: tells Laravel to load the api.php route file.
-
-11. How the Booking model works
-This file is the model for the bookings table. It connects a tenant, a listing, and the linked payment record to a reservation record.
-
-- namespace App\Models: keeps the class inside Laravel's models area.
-- use lines: import HasFactory, Model, and BelongsTo so the file can use them.
-- class Booking extends Model: makes this file an Eloquent model connected to the database.
-- fillable: lists the booking columns that can be saved in bulk.
-- casts(): converts check_in_date and check_out_date into dates, guests into an integer, and total_price into a decimal.
-- tenant(): says one booking belongs to one user who made the booking.
-- listing(): says one booking belongs to one listing.
-- payment(): says one booking has one payment record.
-
-12. How the Booking migration works
-This file is the blueprint for the bookings table. Laravel converts it into SQL for MySQL just like the listings migration.
-
-- up(): creates the bookings table.
-- tenant_id: connects the booking to the user who made it.
-- listing_id: connects the booking to the selected listing.
-- check_in_date and check_out_date: store the stay dates.
-- guests: stores how many guests are included.
-- total_price: stores the booking cost.
-- status: tracks the booking state.
-- down(): removes the bookings table if the migration is rolled back.
-
-13. How the Booking API works
-This is the next backend layer after the booking model and migration. The controller receives requests and returns booking data as JSON, including the payment relation, and the API route file defines the endpoints.
-
-- backend/app/Http/Controllers/BookingController.php: handles requests for bookings and returns JSON.
-- index(): returns all bookings with the tenant, listing owner, and payment loaded.
-- show(Booking $booking): returns one booking with its related tenant, listing owner, and payment.
-- store(Request $request): validates the booking data, creates a new booking record, and returns it as JSON.
-- update(Request $request, Booking $booking): validates the data again, updates the booking, and returns it.
-- store() and update() also check whether the listing is already booked for the selected dates before saving.
-- If the dates overlap with an existing booking, Laravel returns a validation error and stops the save.
-- destroy(Booking $booking): deletes the booking and returns a success message.
-- backend/routes/api.php: defines the GET, POST, PUT, and DELETE routes for the bookings API.
-- backend/tests/Feature/BookingAvailabilityTest.php: proves that the booking controller rejects overlapping dates on create and update. It uses RefreshDatabase for a clean database in each test, creates owner and tenant fixtures, and expects a 422 validation error on listing_id when the dates conflict.
-
-17. How the Auth API works
-This layer handles registration, login, profile lookup, and logout for the mobile app. It uses Sanctum so the frontend can send a bearer token with each protected request.
-
-- backend/app/Http/Controllers/AuthController.php: handles register, login, me, and logout requests and returns JSON.
-- register(Request $request): validates the new user, creates the account, and returns a token.
-- login(Request $request): checks the email and password, then returns a fresh token if the credentials are correct.
-- me(Request $request): returns the currently authenticated user.
-- logout(Request $request): deletes the user's personal access tokens and clears the cached guards so the token cannot be used again.
-- backend/routes/api.php: adds the public auth routes and protects the authenticated routes with auth:sanctum.
-- backend/database/migrations/2026_04_16_000000_create_personal_access_tokens_table.php: creates the table that stores Sanctum tokens.
-- backend/tests/Feature/AuthApiTest.php: proves that registration, login, protected access, and logout token revocation all work.
-
-14. How the Payment model works
-This file is the model for the payments table. It connects one booking to its payment record.
-
-- namespace App\Models: keeps the class inside Laravel's models area.
-- use lines: import HasFactory, Model, and BelongsTo so the file can use them.
-- class Payment extends Model: makes this file an Eloquent model connected to the database.
-- fillable: lists the payment columns that can be saved in bulk.
-- casts(): converts amount into a decimal and paid_at into a datetime.
-- booking(): says one payment belongs to one booking.
-- BelongsTo: the relationship type returned by booking().
-- Booking::class: points to the Booking model class.
-
-15. How the Payment migration works
-This file is the blueprint for the payments table. Laravel converts it into SQL and applies it to MySQL just like the other migrations.
-
-- up(): creates the payments table.
-- booking_id: connects the payment to one booking.
-- amount: stores the payment amount.
-- payment_method: stores whether the payment was by card or cash.
-- status: tracks the payment state.
-- transaction_reference: stores the payment reference number.
-- paid_at: stores when the payment was completed.
-- down(): removes the payments table if the migration is rolled back.
-
-16. How the Payment API works
-This is the next backend layer after the payment model and migration. The controller receives requests and returns payment data as JSON, and the API route file defines the endpoints.
-
-- backend/app/Http/Controllers/PaymentController.php: handles requests for payments and returns JSON.
-- index(): returns all payments with the booking, tenant, and listing owner loaded.
-- show(Payment $payment): returns one payment with its related booking data.
-- store(Request $request): validates the payment data, creates a new payment record, and returns it as JSON.
-- update(Request $request, Payment $payment): validates the data again, updates the payment, and returns it.
-- destroy(Payment $payment): deletes the payment and returns a success message.
-- backend/routes/api.php: defines the GET, POST, PUT, and DELETE routes for the payments API.
-
-17. Main folders in simple words
-app: application logic like controllers and models.
-routes: API endpoints.
-config: project settings.
-database: migrations, seeders, and database structure.
-public: public entry point.
-resources: assets and views if needed.
-storage: logs and uploaded files.
-vendor: installed packages.
-
-18. Why we use GitHub
-GitHub lets the team share the same code, track changes, and work safely without losing progress.
-
-19. How we organize the work
-First we set up the backend project. Then we connect the database. After that we create the models, controllers, and API routes for listings, bookings, and payments. Finally, we test everything and push it to GitHub.
-
-20. Step 5: auth layer
-The next backend step is the auth layer because the mobile app needs tokens to access protected endpoints safely. This layer handles register, login, me, and logout for the API.
-
-21. Step 4: payment layer
-The next backend step is the payment layer because the app flow continues from booking confirmation to payment details. This table stores the payment information for a booking, including the amount, method, status, reference number, and payment time.
-
-22. Step 3: booking layer
-The next backend step is the booking layer because the app flow continues from room details to booking details. This table stores the reservation information for a tenant, including the selected listing, dates, number of guests, and total price.
-
-23. Step 2: the first app table
-The next backend step is creating the first real data table for the project. I am using a listings table because the app needs to store the rooms or accommodations that appear on the home, search, and room detail screens. This table connects each listing to an owner account and will later support bookings and payments.
-
-24. Current progress
-We are still in the backend foundation stage. I would estimate the project is around 95% complete now because the Laravel backend is installed, the database connection is working, the user schema is done, the listings layer is complete, the booking layer is done, the payment layer has been added, the listings API now supports search and filters, booking creation blocks overlapping dates, role-based access control protects each user's own data, and the auth API now issues and revokes Sanctum tokens correctly. The main app features are still not built yet.
-
-25. What XAMPP MySQL means
-XAMPP is only the local environment I use on my computer. The MySQL database inside XAMPP does not automatically go online. It only affects this project when the app is configured to use it in the `.env` file and when the XAMPP services are running.
-
-26. Does it have a real effect
-Yes, but only locally for now. It lets me develop and test the backend safely on my machine. Later, if we want the project online, we can move the same database structure and code to a real hosting server or cloud database. So XAMPP is for development, not the final production server.
-
-27. What happens next
-Next I will connect this authenticated backend to Flutter so the mobile app can use the protected API routes.
-
-28. Short presentation summary
-This backend was built with Laravel and PHP. XAMPP is used for local development, Composer installs the dependencies, GitHub is used to share the code with the team, and role-based access control keeps each user on their own data.
+The next step is connecting the Flutter app to these protected endpoints.

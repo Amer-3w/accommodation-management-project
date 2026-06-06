@@ -4,12 +4,15 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use App\Models\Favorite;
+use App\Models\Message;
+use App\Models\SupportMessage;
+use App\Models\UserWhatsappNumber;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\Message;
 
 class User extends Authenticatable
 {
@@ -24,6 +27,16 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
+        'whatsapp',
+        'date_of_birth',
+        'gender',
+        'university',
+        'governorate',
+        'city',
+        'address',
+        'bio',
+        'profile_photo_path',
         'role',
         'password',
     ];
@@ -46,6 +59,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'date_of_birth' => 'date',
             'password' => 'hashed',
         ];
     }
@@ -98,5 +112,20 @@ class User extends Authenticatable
     public function receivedMessages(): HasMany
     {
         return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    public function whatsappNumbers(): HasMany
+    {
+        return $this->hasMany(UserWhatsappNumber::class);
+    }
+
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function supportMessages(): HasMany
+    {
+        return $this->hasMany(SupportMessage::class);
     }
 }

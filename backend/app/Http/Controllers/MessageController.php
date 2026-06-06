@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Message;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class MessageController extends Controller
 {
@@ -25,7 +26,14 @@ class MessageController extends Controller
 
     public function show(Request $request, Message $message): JsonResponse
     {
-        $this->ensureMessageOwnership($request, $message);
+        $user = $this->ensureMessageOwnership($request, $message);
+
+        if ((int) $message->receiver_id === (int) $user->id && $message->read_at === null) {
+            $message->forceFill([
+                'read_at' => now(),
+                'status' => 'seen',
+            ])->save();
+        }
 
         return response()->json($message->load(['sender', 'receiver']));
     }
@@ -37,12 +45,16 @@ class MessageController extends Controller
         $validated = $request->validate([
             'receiver_id' => ['required', 'exists:users,id'],
             'message' => ['required', 'string'],
+            'status' => ['nullable', Rule::in(['sent', 'delivered', 'seen'])],
+            'attachment_path' => ['nullable', 'string', 'max:255'],
         ]);
 
         $message = Message::create([
             'sender_id' => $sender->id,
             'receiver_id' => $validated['receiver_id'],
             'message' => $validated['message'],
+            'status' => $validated['status'] ?? 'sent',
+            'attachment_path' => $validated['attachment_path'] ?? null,
             'read_at' => null,
         ]);
 
@@ -56,11 +68,15 @@ class MessageController extends Controller
         $validated = $request->validate([
             'message' => ['nullable', 'string'],
             'read_at' => ['nullable', 'date'],
+            'status' => ['nullable', Rule::in(['sent', 'delivered', 'seen'])],
+            'attachment_path' => ['nullable', 'string', 'max:255'],
         ]);
 
         $message->update([
             'message' => $validated['message'] ?? $message->message,
             'read_at' => array_key_exists('read_at', $validated) ? $validated['read_at'] : $message->read_at,
+            'status' => $validated['status'] ?? $message->status,
+            'attachment_path' => $validated['attachment_path'] ?? $message->attachment_path,
         ]);
 
         return response()->json($message->load(['sender', 'receiver']));

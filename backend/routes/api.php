@@ -2,15 +2,19 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ListingController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SupportMessageController;
 use App\Http\Controllers\PropertyImageController;
+use App\Http\Controllers\UserWhatsappNumberController;
 use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/support-messages', [SupportMessageController::class, 'store']);
 
 Route::get('/properties', [ListingController::class, 'index']);
 Route::get('/properties/{listing}', [ListingController::class, 'show']);
@@ -19,7 +23,22 @@ Route::get('/listings/{listing}', [ListingController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/auth/me', [AuthController::class, 'me']);
+    Route::put('/auth/me', [AuthController::class, 'updateProfile']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+    Route::get('/user-whatsapp-numbers', [UserWhatsappNumberController::class, 'index']);
+    Route::post('/user-whatsapp-numbers', [UserWhatsappNumberController::class, 'store']);
+    Route::put('/user-whatsapp-numbers/{userWhatsappNumber}', [UserWhatsappNumberController::class, 'update']);
+    Route::delete('/user-whatsapp-numbers/{userWhatsappNumber}', [UserWhatsappNumberController::class, 'destroy']);
+
+    Route::get('/favorites', [FavoriteController::class, 'index']);
+    Route::post('/favorites', [FavoriteController::class, 'store']);
+    Route::delete('/favorites/{favorite}', [FavoriteController::class, 'destroy']);
+
+    Route::get('/support-messages', [SupportMessageController::class, 'index']);
+    Route::get('/support-messages/{supportMessage}', [SupportMessageController::class, 'show']);
+    Route::put('/support-messages/{supportMessage}', [SupportMessageController::class, 'update']);
+    Route::delete('/support-messages/{supportMessage}', [SupportMessageController::class, 'destroy']);
 
     Route::post('/properties', [ListingController::class, 'store']);
     Route::put('/properties/{listing}', [ListingController::class, 'update']);

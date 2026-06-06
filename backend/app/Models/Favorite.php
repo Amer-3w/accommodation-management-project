@@ -6,28 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Review extends Model
+class Favorite extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
         'property_id',
-        'rating',
-        'comment',
-        'owner_reply',
-        'owner_replied_at',
-        'moderated_at',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'rating' => 'integer',
-            'owner_replied_at' => 'datetime',
-            'moderated_at' => 'datetime',
-        ];
-    }
 
     public function user(): BelongsTo
     {

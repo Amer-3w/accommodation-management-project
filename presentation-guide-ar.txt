@@ -1,311 +1,74 @@
 دليل عرض مشروع التخرج - الواجهة الخلفية
 
 1. ملخص المشروع
-هذا المشروع هو الواجهة الخلفية لتطبيق التخرج. أستخدم Laravel لاستقبال الطلبات من تطبيق الهاتف، معالجة البيانات، ثم إرجاع النتيجة بصيغة JSON. ومصدر قاعدة البيانات الأساسي هو schema.sql.
+هذا المشروع هو الواجهة الخلفية لتطبيق التخرج. بنيته باستخدام Laravel حتى يستقبل الطلبات من تطبيق Flutter، ويعالج البيانات، ثم يعيد النتائج بصيغة JSON. ومصدر قاعدة البيانات الأساسي هو schema.sql.
 
-2. فكرة المشروع
-بنيت الواجهة الخلفية لكي تدعم تسجيل الدخول، إدارة العقارات، الحجز، الدفع، الرسائل، والتقييمات بشكل منظم وآمن. النظام مبني على الأدوار، لذلك كل مستخدم يتعامل فقط مع بياناته.
+2. الأدوات المستخدمة
+استخدمت Laravel وPHP وXAMPP وMySQL وComposer وSanctum وGitHub. XAMPP يوفر لي بيئة PHP وMySQL المحلية على ويندوز، وGitHub يحفظ الكود ويساعدنا على مشاركة التعديلات داخل الفريق.
 
-3. لماذا أستخدم Laravel
-أستخدم Laravel لأنه يوفر المسارات، والتحقق من البيانات، وEloquent ORM، ونظام المصادقة، وواجهات API ضمن إطار واحد واضح. هذا يوفر الوقت ويسهّل شرح المشروع أثناء المناقشة.
+3. مصدر الحقيقة
+أتعامل مع schema.sql بوصفه التصميم الحقيقي لقاعدة البيانات. هذا الملف يحدد الجداول التي يجب أن يلتزم بها الـ backend، مثل users و properties و property_images و bookings و payments و messages و reviews و favorites و support_messages و user_whatsapp_numbers و personal_access_tokens.
 
-4. لماذا أستخدم XAMPP
-أستخدم XAMPP لأنه يوفر PHP وMySQL على جهاز ويندوز المحلي. هذا يساعدني على تجربة الواجهة الخلفية قبل نشرها. في هذا المشروع، XAMPP مخصص للتطوير المحلي فقط.
+4. الأدوار
+الأدوار الرئيسية هي admin و owner و user. المالك owner يدير العقارات. المستخدم user ينشئ الحجوزات ويدفع ويحفظ المفضلة ويرسل الرسائل ويضيف التقييمات. أما admin فيدير المهام الإدارية.
 
-5. لماذا أستخدم Composer وGitHub
-Composer هو مدير الحزم الخاص بـ PHP، ومن خلاله يتم تثبيت Laravel ومكتباته. وGitHub أستخدمه لحفظ الكود، ومشاركته مع الفريق، وتتبع التعديلات بأمان.
+5. سير العمل
+أولًا يسجل المستخدم أو يسجل الدخول. بعد ذلك يعيد Sanctum token من نوع bearer. ثم يمكن للتطبيق عرض العقارات، فتح التفاصيل، إنشاء الحجز، تنفيذ الدفع، إرسال الرسائل، حفظ المفضلة، إضافة التقييمات، إدارة أرقام الواتساب، والتواصل مع الدعم.
 
-6. معنى schema.sql
-schema.sql هو التصميم الحقيقي لقاعدة البيانات. هو الذي يحدد الجداول الصحيحة التي يجب أن يلتزم بها الـ backend. الجداول المهمة هنا هي users و properties و property_images و bookings و payments و messages و reviews و notifications و personal_access_tokens.
+6. المصادقة
+عندي endpoints للتسجيل وتسجيل الدخول وجلب المستخدم الحالي وتحديث الملف الشخصي وتسجيل الخروج. التسجيل ينشئ الحساب، login يعيد token، me يعيد بيانات المستخدم الحالي، update profile يعدل الحساب الحالي، وlogout يلغي token.
 
-7. الأدوار الرئيسية
-الأدوار في النظام هي admin و owner و user. المالك owner ينشئ العقارات ويديرها. المستخدم user يقوم بالحجوزات والدفع والرسائل والتقييمات. أما admin فهو للدور الإداري ويمكن إنشاؤه يدويًا أو عن طريق seed.
+7. طبقة العقارات
+الجدول الأساسي للعقارات هو properties. وفي الكود ما زال اسم الموديل Listing للمحافظة على التوافق، لكنه مرتبط بجدول properties. العقار يحتوي على بيانات المالك والعنوان والسعر والوصف وعدد الغرف والحمامات والخصومات ووسائل التواصل والحالة والتوفر.
 
-8. العلاقات الأساسية
-المستخدم الواحد يمكن أن يملك عدة عقارات. العقار الواحد يمكن أن يكون له عدة صور، وعدة حجوزات، وعدة تقييمات. المستخدم الواحد يمكن أن ينشئ عدة حجوزات ورسائل وتقييمات. وكل حجز مرتبط بدفع واحد.
+8. صور العقار
+جدول property_images يخزن أكثر من صورة للعقار الواحد. هذا يحافظ على تنظيم قاعدة البيانات لأن العقار الواحد يمكن أن يملك صورًا متعددة بدون تكرار بيانات العقار نفسه.
 
-9. سير العمل خطوة بخطوة
-أولًا يسجل المستخدم أو يسجل الدخول. بعد ذلك يحصل التطبيق على token من Sanctum. ثم يمكنه تصفح العقارات، فتح تفاصيل العقار، إنشاء حجز، تنفيذ الدفع، إرسال رسالة، وإضافة تقييم. وكل عملية محمية تتحقق من الـ token والدور.
+9. طبقة الحجز
+جدول bookings يخزن user_id و property_id و date_from و date_to و guests و notes و base_price و price_period و number_of_days و base_total و discount_percent و discount_amount و service_fee و security_deposit و final_total و status. كما أضفت فحص التداخل حتى لا يتم حجز نفس العقار في تواريخ متعارضة.
 
-10. طبقة المصادقة
-أستخدم Sanctum للمصادقة المعتمدة على tokens. عندي endpoints للتسجيل، وتسجيل الدخول، وجلب المستخدم الحالي، وتسجيل الخروج. التسجيل ينشئ الحساب، login يعيد token، me يعيد بيانات المستخدم الحالي، وlogout يلغي token.
+10. حساب الحجز
+الـ backend الآن يحسب تفاصيل السعر من بيانات العقار عندما لا يرسل Flutter كل القيم. هذا يجعل الحقول المالية متوافقة مع بعضها ويطابق تصميم schema.sql.
 
-11. طبقة العقارات
-الجدول الأساسي في schema هو properties. وفي بعض الملفات القديمة ما زال الاسم Listing موجودًا فقط للتوافق، لكن البيانات الفعلية الآن محفوظة في جدول properties. هذا الجدول يحتوي على owner_id و title و price و location و description و rooms و amenities و status.
+11. طبقة الدفع
+جدول payments يخزن دفعة واحدة لكل booking. يحتوي على amount و payment_method و status و transaction_reference و paid_at و notes. وجعلت booking_id unique حتى لا يتكرر الدفع لنفس الحجز.
 
-12. صور العقار
-جدول property_images يخزن أكثر من صورة للعقار الواحد. كل صورة لها path و sort_order. هذا يحافظ على تنظيم قاعدة البيانات لأن العقار الواحد قد يملك عدة صور بدون تكرار بياناته.
+12. الرسائل
+جدول messages يدعم المحادثة بين المستخدمين. أضفت status و attachment_path و read_at حتى تمر الرسالة بحالات sent و delivered و seen.
 
-13. طبقة الحجز
-جدول bookings يخزن user_id و property_id و date_from و date_to و guests و total_price و status و notes. وأضفت فحصًا يمنع الحجز المتداخل حتى لا يتم حجز نفس العقار في تواريخ متعارضة.
+13. التقييمات
+جدول reviews يخزن rating و comment لكل عقار. كما أضفت owner_reply و owner_replied_at و moderated_at حتى يتمكن المالك أو admin من إدارة التقييمات.
 
-14. طبقة الدفع
-جدول payments يخزن دفعًا واحدًا لكل booking. الحقول فيه هي amount و method و status و reference و paid_at و notes. وجعلت booking_id unique حتى لا يتكرر الدفع لنفس الحجز.
+14. المفضلة وأرقام الواتساب
+أضفت favorites حتى يستطيع المستخدم حفظ العقارات، وأضفت user_whatsapp_numbers حتى يمكنه حفظ أكثر من رقم واتساب. وكلاهما أصبح الآن متاحًا عبر الـ API.
 
-15. الرسائل والتقييمات
-جدول messages يدعم الدردشة بين المستخدمين. وجدول reviews يخزن التقييم والتعليق الخاص بالعقار. هذه الجداول جزء من الـ schema الأساسي، لذلك الواجهة الخلفية جاهزة لميزة الشات والتقييم ضمن نفس النظام.
+15. رسائل الدعم
+أضفت support_messages لنموذج التواصل أو طلبات المساعدة. يمكن للضيف أو المستخدم المسجل إرسال رسالة دعم، ويمكن للـ admin مراجعتها أو تحديثها.
 
-16. التحقق والحماية
-أتحقق من كل طلب قبل الحفظ. كما أفحص الملكية حتى لا يستطيع المالك إدارة إلا عقاراته، ولا يستطيع المستخدم إدارة إلا حجوزاته ومدفوعاته ورسائله وتقييماته. هذا يمنع الوصول غير المصرح به.
+16. الحماية
+أتحقق من كل طلب قبل الحفظ، كما أفحص الملكية حتى لا يدير كل مستخدم إلا بياناته الخاصة. هذا يحمي العقارات والحجوزات والمدفوعات والرسائل والتقييمات والمفضلة وبيانات الملف الشخصي.
 
-17. إعدادات التشغيل
-عدلت الإعدادات لتناسب التصميم المبني على schema.sql. لذلك أبقيت session و cache و queue بسيطين باستخدام file و sync، حتى تظل قاعدة البيانات مركزة على الجداول الأساسية الخاصة بالمشروع.
+17. ما الذي عدلته
+حدّثت migrations و models و controllers و routes و factory و seeder حتى تتوافق مع schema.sql. كما أضفت الـ endpoints الجديدة التي يحتاجها تطبيق Flutter.
 
-18. ما الذي عدلته في backend
-حدّثت migrations و models و controllers و routes و factory و seeder لتتوافق مع الـ schema الأصلي. كما أضفت endpoints خاصة بالعقارات، والحجوزات، والدفع، والتقييمات، والرسائل، وصور العقار.
+18. الاختبار
+شغلت Laravel test suite باستخدام PHP الخاص بـ XAMPP، وكل الاختبارات نجحت: 12 اختبارًا و 39 assertion. هذا يؤكد أن المصادقة وفحص تداخل الحجز والصلاحيات وملكية الدفع ما زالت تعمل بعد تحديث الـ schema.
 
 19. ماذا أقول أمام اللجنة
-إذا سألني أحد من اللجنة ماذا فعلت، أقول: أخذت schema.sql كمرجع أساسي، ثم طابقت معه Laravel backend، وأضفت حماية للبيانات باستخدام المصادقة والتحقق والصلاحيات المبنية على الأدوار.
+إذا سألني أحد ماذا فعلت، أقول: أخذت schema.sql كمصدر أساسي، وطابقت معه Laravel backend، وأضفت حماية مبنية على الأدوار والتحقق، وجهزت الـ API لربطها مع Flutter.
 
-20. أسئلة متوقعة وإجابات قصيرة
+20. أسئلة قصيرة
 ما هو مصدر قاعدة البيانات؟
-أستخدم schema.sql كمصدر أساسي.
+أستخدم schema.sql كمصدر الحقيقة.
 
 لماذا اخترت Laravel؟
-لأنه يوفر بنية واضحة لـ API والتحقق من البيانات وEloquent والمصادقة.
+لأنه يوفر المسارات والتحقق من البيانات وEloquent ومصادقة Sanctum وإجابات API واضحة.
 
 كيف أحمي البيانات؟
 أستخدم Sanctum مع فحص الدور والملكية.
 
 كيف أمنع تكرار الحجز؟
-أفحص التواريخ المتداخلة قبل إنشاء الحجز أو تعديله.
+أفحص التواريخ المتداخلة قبل الحفظ.
 
-كيف أخزن الدفع؟
-أخزن دفعة واحدة لكل حجز مع reference فريد.
-
-ما دور XAMPP؟
-يوفر بيئة PHP وMySQL المحلية أثناء التطوير.
-
-ما الخطوة التالية بعد backend؟
-الخطوة التالية هي ربط Flutter بهذه الـ API المحمية وإنهاء أي منطق واجهة متبقٍ.
-
-21. خلاصة قصيرة
-تم بناء الواجهة الخلفية باستخدام Laravel وPHP وXAMPP وComposer وGitHub. قاعدة البيانات تتبع schema.sql، والـ API محمية باستخدام Sanctum، وتدفق البيانات منظم حول العقارات والحجوزات والدفع والرسائل والتقييمات.
-
-1. ما هو هذا المشروع
-هذا المشروع هو الجزء الخلفي من تطبيق التخرج. الواجهة الخلفية هي الجزء الذي يستقبل الطلبات من تطبيق Flutter، يعالج البيانات، ثم يعيد النتيجة للتطبيق.
-
-2. لماذا نستخدم Laravel
-Laravel هو إطار عمل بلغة PHP. يساعدنا على تنظيم المشروع بشكل واضح في المسارات، والتحقق من البيانات، والتعامل مع قاعدة البيانات، وتسجيل الدخول، وبناء واجهات API. هذا يوفر الوقت ويجعل المشروع مرتبًا.
-
-3. لماذا نستخدم XAMPP
-XAMPP يوفر PHP و MySQL على الجهاز المحلي. هذا يسمح لي بتشغيل المشروع وتجربته على ويندوز قبل رفعه على الإنترنت أو مشاركته مع الفريق.
-
-4. لماذا نستخدم Composer
-Composer هو مدير الحزم الخاص بـ PHP. من خلاله يتم تثبيت Laravel والمكتبات التي يعتمد عليها المشروع.
-
-5. لماذا يحتوي مجلد backend على ملفات كثيرة
-Laravel ينشئ هيكلًا كاملًا للمشروع تلقائيًا. هذه الملفات ليست عشوائية، بل مقسمة إلى أجزاء مثل منطق التطبيق، والمسارات، والإعدادات، وملفات قاعدة البيانات، والملفات العامة.
-
-6. ما الذي أضفته حتى الآن
-المشروع ما زال يعتمد في أغلبه على هيكل Laravel الأساسي. التعديلات التي قمت بها هي أول تخصيصات للـ backend لهذا التطبيق.
-
-- backend/.env: تم تغيير الاتصال بقاعدة البيانات إلى MySQL الخاصة بـ XAMPP وتم ضبط الجلسات على file حتى يعمل المشروع محليًا.
-- backend/.env.example: تم نسخ نفس الإعدادات حتى يتمكن الفريق من إعداد المشروع بنفس الطريقة.
-- backend/app/Models/User.php: تمت إضافة phone و role و status إلى نموذج المستخدم حتى نخزن بيانات التواصل ونوع الحساب.
-- backend/app/Models/Listing.php: تمت إضافة أول model خاص بالغرف والسكنات.
-- backend/app/Http/Controllers/ListingController.php: تمت إضافة controller يقرأ بيانات listings للجميع ويتيح فقط للمالك إنشاء أو تعديل أو حذف listings الخاصة به بصيغة JSON.
-- backend/app/Models/Booking.php: تمت إضافة model خاص ببيانات الحجز وربطه بعملية دفع واحدة.
-- backend/app/Http/Controllers/BookingController.php: تمت إضافة controller يتيح فقط للمستخدم tenant إدارة حجوزاته الخاصة، ويعيد أيضًا معلومات الدفع، ويمنع التواريخ المتداخلة.
-- backend/app/Models/Payment.php: تمت إضافة model خاص ببيانات الدفع.
-- backend/app/Http/Controllers/PaymentController.php: تمت إضافة controller يتيح فقط للمستخدم tenant إدارة بيانات الدفع الخاصة بحجوزه.
-- backend/app/Http/Controllers/Controller.php: تمت إضافة دوال مشتركة لفحص الملكية حتى تحمي الـ controllers بيانات كل مستخدم.
-- backend/database/factories/UserFactory.php: تمت إضافة owner و tenant states لاستخدامها في اختبارات الصلاحيات.
-- backend/database/migrations/2026_04_11_000000_create_listings_table.php: تم إنشاء أول جدول خاص بعرض السكنات داخل التطبيق.
-- backend/database/migrations/2026_04_10_153417_add_role_phone_status_to_users_table.php: تم تحديث جدول users ليتوافق مع الحقول الجديدة.
-- backend/database/migrations/2026_04_15_000000_create_bookings_table.php: تم إنشاء جدول الحجز الخاص بالـ reservations.
-- backend/database/migrations/2026_04_15_120000_create_payments_table.php: تم إنشاء جدول الدفع الخاص بالمعاملات.
-- backend/routes/api.php: تمت إضافة مسارات API لقراءة listings وحماية عمليات الإنشاء والتعديل والحذف الخاصة بـ listings و bookings و payments باستخدام authentication.
-- backend/tests/Feature/BookingAvailabilityTest.php: تمت إضافة اختبارات تثبت أن التواريخ المتداخلة في الحجز يتم رفضها عند الإنشاء والتعديل.
-- backend/tests/Feature/RoleAccessTest.php: تمت إضافة اختبارات تثبت أن المالك يدير listings الخاصة به وأن tenant يدير booking الخاصة به وأن الدفع يبقى مرتبطًا بالمستخدم الصحيح.
-- backend/bootstrap/app.php: تم تسجيل ملف api.php حتى يقوم Laravel بتحميله.
-- presentation-guide-en.txt و presentation-guide-ar.txt: تمت إضافة ملاحظات العرض حتى يمكن شرح الbackend بوضوح أثناء المناقشة.
-
-7. كيف يعمل ملف User
-هذا الملف هو model الخاص بجدول users، وهو أيضًا يساعد في دعم نظام تسجيل الدخول.
-
-- namespace App\Models: يضع الكلاس داخل جزء models الخاص بـ Laravel.
-- use lines: تستورد UserFactory و HasFactory و Authenticatable و HasMany و Notifiable حتى يمكن استخدامها داخل الملف.
-- class User extends Authenticatable: يجعل النموذج متوافقًا مع نظام تسجيل الدخول في Laravel.
-- HasFactory: يسمح بإنشاء بيانات مستخدمين تجريبية للاختبار والـ seeders.
-- fillable: يحدد أعمدة المستخدم المسموح بحفظها دفعة واحدة مثل name و email و phone و role و status و password.
-- hidden: يخفي password و remember_token عند تحويل النموذج إلى JSON.
-- casts(): يحول email_verified_at إلى datetime ويحول password إلى hashed.
-- listings(): يوضح أن المستخدم الواحد يمكن أن يكون له عدة listings.
-- hasMany(Listing::class, 'owner_id'): يربط المستخدم بجدول listings من خلال العمود owner_id.
-- HasMany: هو نوع العلاقة الذي ترجعه listings().
-- Listing::class: يشير إلى كلاس Listing model داخل نفس namespace App\Models.
-
-8. كيف يعمل ملف Listing
-هذا الملف هو model الخاص بجدول listings. هو لا ينشئ الجدول بنفسه؛ migration هو الذي ينشئ الجدول. الـ model يشرح لـ Laravel كيف يستخدم الجدول.
-
-- namespace App\Models: يضع الكلاس داخل مجلد models الخاص بـ Laravel.
-- use lines: تستورد HasFactory و Model و BelongsTo حتى يتم استخدامها داخل الملف.
-- HasFactory: يسمح بتوليد بيانات تجريبية للاختبار والـ seeders.
-- class Listing extends Model: يجعل هذا الملف Eloquent model مرتبطًا بقاعدة البيانات.
-- fillable: يحدد الأعمدة المسموح بحفظها دفعة واحدة.
-- casts(): يحول القيم إلى أنواع PHP مناسبة مثل decimal و boolean و date.
-- owner(): يوضح أن كل listing مرتبط بمستخدم واحد عن طريق owner_id.
-- BelongsTo: هو نوع العلاقة الذي ترجعه owner().
-- User::class: يشير إلى كلاس User model.
-
-9. أهم المجلدات بطريقة بسيطة
-app: منطق التطبيق مثل controllers و models.
-routes: مسارات الـ API.
-config: إعدادات المشروع.
-database: migrations و seeders وبنية قاعدة البيانات.
-public: نقطة الدخول العامة.
-resources: الملفات والواجهات إذا احتجناها.
-storage: السجلات والملفات المرفوعة.
-vendor: الحزم المثبتة.
-
-9. كيف يعمل ملف migration
-هذا الملف هو الـ blueprint الخاص بجدول listings. هو لا يكتب SQL مباشرة، بل Laravel يقرأ هذا الـ migration المكتوب بـ PHP ثم يحوله إلى SQL ويطبقه على MySQL.
-
-- return new class extends Migration: ينشئ migration class بدون اسم.
-- up(): هي الدالة التي يشغلها Laravel عند تطبيق الـ migration.
-- Schema::create('listings', ...): تخبر Laravel بإنشاء جدول listings.
-- Blueprint $table: هو الكائن الذي نستخدمه لتعريف الأعمدة والعلاقات.
-- down(): هي الدالة التي يشغلها Laravel عند الرجوع أو التراجع عن الـ migration.
-- Schema::dropIfExists('listings'): يحذف جدول listings فقط إذا كان موجودًا.
-- هذا ليس error handling. هذه هي الخطوة العكسية لإلغاء الـ migration.
-
-10. كيف يعمل Listing API
-هذه هي الطبقة التالية بعد الـ model والـ migration. الـ controller يستقبل الطلبات ويعيد بيانات listings بصيغة JSON، وملف الـ routes يحدد نقاط الوصول.
-
-- backend/app/Http/Controllers/ListingController.php: يتعامل مع طلبات listings ويعيد JSON.
-- JsonResponse: نوع الإرجاع يوضح لـ Laravel أن هذه الدوال ترسل JSON إلى الواجهة الأمامية.
-- index(): تبدأ بـ Listing::with('owner') حتى يتم تحميل بيانات المالك مع كل listing قبل تنفيذ الاستعلام.
-- filled و has و query و boolean هي دوال مساعدة في Laravel Request، بينما trim هي دالة عادية في PHP.
-- $request->filled('search'): تتحقق هل حقل البحث موجود وغير فارغ.
-- trim((string) $request->query('search')): تزيل المسافات الزائدة من نص البحث وتجعله نصًا صريحًا.
-- $query->where(function (Builder $listingQuery) use ($search): void { ... }): تجمع شروط البحث معًا حتى يمكن لكلمة واحدة أن تطابق عدة أعمدة.
-- where و orWhere مع like: تبحث في title و description و city و area و address عن نص مشابه.
-- جمل if تضيف الفلاتر الخاصة بـ city و listing_type و status و gender_preference و furnished و is_featured و min_price و max_price و bedrooms و bathrooms و available_from فقط عندما يرسلها المستخدم.
-- match ($request->query('sort', 'latest')): يحدد طريقة الترتيب. latest و oldest دوال خاصة بـ Laravel، بينما orderBy و orderByDesc تُستخدم للترتيب المخصص.
-- return response()->json($query->get()): تنفذ الاستعلام وتعيد القائمة النهائية بصيغة JSON.
-- show(Listing $listing): يستخدم route model binding حتى يمرر Laravel سجل listing المطلوب تلقائيًا، ثم load('owner') يحمل المستخدم المرتبط بهذا listing.
-- store(Request $request): تتحقق من البيانات القادمة، ثم تنشئ listing جديدًا وتعيده بصيغة JSON.
-- update(Request $request, Listing $listing): تتحقق من البيانات مرة أخرى، ثم تعدل listing الموجود وتعيده.
-- destroy(Listing $listing): تحذف listing وتعيد رسالة نجاح.
-- owner هنا ليس أحدث owner. بل هو المستخدم المرتبط بهذا listing من خلال owner_id.
-- backend/routes/api.php: يحدد GET و POST و PUT و DELETE routes الخاصة بـ listings API.
-- backend/bootstrap/app.php: يخبر Laravel بتحميل ملف api.php.
-
-11. كيف يعمل Booking model
-هذا الملف هو model الخاص بجدول bookings. وهو يربط المستخدم الذي قام بالحجز مع السكن المحجوز ومع سجل الدفع المرتبط به.
-
-- namespace App\Models: يضع الكلاس داخل جزء models الخاص بـ Laravel.
-- use lines: تستورد HasFactory و Model و BelongsTo حتى يتم استخدامها داخل الملف.
-- class Booking extends Model: يجعل هذا الملف Eloquent model مرتبطًا بقاعدة البيانات.
-- fillable: يحدد أعمدة الحجز المسموح بحفظها دفعة واحدة.
-- casts(): يحول check_in_date و check_out_date إلى dates، و guests إلى integer، و total_price إلى decimal.
-- tenant(): يوضح أن كل booking مرتبط بمستخدم واحد قام بالحجز.
-- listing(): يوضح أن كل booking مرتبط بسكن واحد.
-- payment(): يوضح أن كل booking مرتبط بعملية دفع واحدة.
-
-12. كيف يعمل Booking migration
-هذا الملف هو الـ blueprint لجدول bookings. Laravel يحوله إلى SQL ويطبقه على MySQL كما فعلنا مع listings.
-
-- up(): ينشئ جدول bookings.
-- tenant_id: يربط الحجز بالمستخدم الذي قام به.
-- listing_id: يربط الحجز بالسكن المختار.
-- check_in_date و check_out_date: يخزنون تواريخ الإقامة.
-- guests: يخزن عدد الضيوف.
-- total_price: يخزن تكلفة الحجز.
-- status: يتابع حالة الحجز.
-- down(): يحذف جدول bookings إذا تم التراجع عن الـ migration.
-
-13. كيف يعمل Booking API
-هذه هي الطبقة التالية بعد booking model و booking migration. الـ controller يستقبل الطلبات ويعيد بيانات booking بصيغة JSON، بما في ذلك علاقة الدفع، وملف الـ routes يحدد نقاط الوصول.
-
-- backend/app/Http/Controllers/BookingController.php: يتعامل مع طلبات booking ويعيد JSON.
-- index(): يعيد كل bookings مع تحميل tenant و listing owner و payment.
-- show(Booking $booking): يعيد booking واحد مع tenant و listing owner و payment الخاصين به.
-- store(Request $request): يتحقق من بيانات الحجز، ثم ينشئ booking جديدًا ويعيده بصيغة JSON.
-- update(Request $request, Booking $booking): يتحقق من البيانات مرة أخرى، ثم يعدل booking موجودًا ويعيده.
-- store() و update() يتحققان أيضًا من أن السكن غير محجوز في التواريخ المختارة قبل الحفظ.
-- إذا كانت التواريخ متداخلة مع booking موجود، Laravel يعيد validation error ويتوقف الحفظ.
-- destroy(Booking $booking): يحذف booking ويعيد رسالة نجاح.
-- backend/routes/api.php: يحدد GET و POST و PUT و DELETE routes الخاصة بـ bookings API.
-- backend/tests/Feature/BookingAvailabilityTest.php: يثبت أن controller الخاص بالحجز يرفض التواريخ المتداخلة عند الإنشاء والتعديل. يستخدم RefreshDatabase حتى تبدأ كل تجربة بقاعدة بيانات نظيفة، وينشئ owner و tenant و listing، ثم يتوقع ظهور validation error على listing_id عندما تتداخل التواريخ.
-
-14. كيف يعمل Payment model
-هذا الملف هو model الخاص بجدول payments. وهو يربط booking واحدًا بسجل الدفع الخاص به.
-
-- namespace App\Models: يضع الكلاس داخل جزء models الخاص بـ Laravel.
-- use lines: تستورد HasFactory و Model و BelongsTo حتى يتم استخدامها داخل الملف.
-- class Payment extends Model: يجعل هذا الملف Eloquent model مرتبطًا بقاعدة البيانات.
-- fillable: يحدد أعمدة الدفع المسموح بحفظها دفعة واحدة.
-- casts(): يحول amount إلى decimal و paid_at إلى datetime.
-- booking(): يوضح أن كل payment مرتبط بـ booking واحد.
-- BelongsTo: هو نوع العلاقة الذي ترجعه booking().
-- Booking::class: يشير إلى كلاس Booking model.
-
-15. كيف يعمل Payment migration
-هذا الملف هو الـ blueprint لجدول payments. Laravel يحوله إلى SQL ويطبقه على MySQL كما فعلنا مع باقي الجداول.
-
-- up(): ينشئ جدول payments.
-- booking_id: يربط الدفع بعملية booking واحدة.
-- amount: يخزن قيمة الدفع.
-- payment_method: يخزن هل كانت الدفعة بواسطة card أو cash.
-- status: يتابع حالة الدفع.
-- transaction_reference: يخزن رقم أو مرجع العملية.
-- paid_at: يخزن وقت إتمام الدفع.
-- down(): يحذف جدول payments إذا تم التراجع عن الـ migration.
-
-16. كيف يعمل Payment API
-هذه هي الطبقة التالية بعد payment model و payment migration. الـ controller يستقبل الطلبات ويعيد بيانات payment بصيغة JSON، وملف الـ routes يحدد نقاط الوصول.
-
-- backend/app/Http/Controllers/PaymentController.php: يتعامل مع طلبات الدفع ويعيد JSON.
-- index(): يعيد كل payments مع تحميل booking و tenant و listing owner.
-- show(Payment $payment): يعيد payment واحدًا مع بيانات booking المرتبطة به.
-- store(Request $request): يتحقق من بيانات الدفع، ثم ينشئ payment جديدًا ويعيده بصيغة JSON.
-- update(Request $request, Payment $payment): يتحقق من البيانات مرة أخرى، ثم يعدل payment موجودًا ويعيده.
-- destroy(Payment $payment): يحذف payment ويعيد رسالة نجاح.
-- backend/routes/api.php: يحدد GET و POST و PUT و DELETE routes الخاصة بـ payments API.
-
-17. كيف يعمل Auth API
-هذه الطبقة تتعامل مع التسجيل، وتسجيل الدخول، وجلب بيانات المستخدم الحالي، وlogout للتطبيق المحمول. وهي تستخدم Sanctum حتى يتمكن الـ frontend من إرسال bearer token مع كل طلب محمي.
-
-- backend/app/Http/Controllers/AuthController.php: يتعامل مع طلبات register و login و me و logout ويعيد JSON.
-- register(Request $request): يتحقق من بيانات المستخدم الجديد، ثم ينشئ الحساب ويعيد token.
-- login(Request $request): يتحقق من البريد الإلكتروني وكلمة المرور، ثم يعيد token جديدًا إذا كانت البيانات صحيحة.
-- me(Request $request): يعيد المستخدم الحالي المسجل دخوله.
-- logout(Request $request): يحذف personal access tokens الخاصة بالمستخدم ويعيد ضبط الـ guards حتى لا يمكن استخدام الـ token مرة أخرى.
-- backend/routes/api.php: يضيف مسارات auth العامة ويحمي المسارات المسجلة دخولها باستخدام auth:sanctum.
-- backend/database/migrations/2026_04_16_000000_create_personal_access_tokens_table.php: ينشئ الجدول الذي يخزن Tokens الخاصة بـ Sanctum.
-- backend/tests/Feature/AuthApiTest.php: يثبت أن التسجيل وتسجيل الدخول والوصول المحمي وlogout مع إبطال token كلها تعمل.
-
-18. لماذا نستخدم GitHub
-GitHub يسمح للفريق بمشاركة نفس الكود، وتتبع التعديلات، والعمل بطريقة آمنة بدون فقدان التقدم.
-
-19. كيف ننظم العمل
-أولًا نجهز مشروع الواجهة الخلفية. ثم نربط قاعدة البيانات. بعد ذلك ننشئ النماذج و controllers و routes الخاصة بالـ API الخاصة بـ listings و bookings و payments. وفي النهاية نختبر كل شيء ثم نرفعه على GitHub.
-
-20. الخطوة 5: auth layer
-الخطوة التالية في الbackend هي auth layer لأن التطبيق المحمول يحتاج tokens حتى يصل إلى الـ endpoints المحمية بشكل آمن. هذه الطبقة تتعامل مع register و login و me و logout في الـ API.
-
-21. الخطوة 4: payment layer
-الخطوة التالية في الbackend هي payment layer لأن تسلسل التطبيق ينتقل من تأكيد الحجز إلى تفاصيل الدفع. هذا الجدول يخزن معلومات الدفع الخاصة بالحجز، مثل المبلغ، وطريقة الدفع، والحالة، ومرجع العملية، ووقت الدفع.
-
-22. الخطوة 3: booking layer
-الخطوة التالية في الbackend هي booking layer لأن تطبيقنا ينتقل من room details إلى booking details. هذا الجدول يخزن بيانات الحجز الخاصة بالمستخدم مثل السكن المختار والتواريخ وعدد الضيوف والسعر النهائي.
-
-23. الخطوة 2: أول جدول للتطبيق
-الخطوة التالية في الbackend هي إنشاء أول جدول حقيقي خاص بالتطبيق. أستخدم جدول listings لأنه سيخزن الغرف أو السكنات التي تظهر في صفحات home و search و room detail. هذا الجدول يربط كل إعلان بحساب المالك، وسيخدم لاحقًا ميزات الحجز والدفع.
-
-24. نسبة التقدم الحالية
-نحن ما زلنا في مرحلة تأسيس الbackend. أقدر أن المشروع وصل تقريبًا إلى 95% لأن مشروع Laravel تم تثبيته، وربط قاعدة البيانات يعمل، وأول جدول خاص بالتطبيق جاهز، وbooking layer أصبح موجودًا، وpayment layer تمت إضافته أيضًا، وlisting API أصبح يدعم البحث والفلاتر، وأصبح إنشاء booking يمنع التواريخ المتداخلة، وأصبحت الصلاحيات تحمي بيانات كل مستخدم، وauth API أصبح يصدر Tokens ويُلغيها بشكل صحيح. لكن المزايا الأساسية للتطبيق لم تُبنَ بعد.
-
-25. ماذا يعني XAMPP MySQL
-XAMPP هو فقط البيئة المحلية على جهازي. قاعدة بيانات MySQL داخل XAMPP لا تصبح online تلقائيًا. هي تؤثر على المشروع فقط عندما أضبطها في ملف `.env` وعندما تكون خدمات XAMPP شغالة.
-
-26. هل له تأثير فعلي
-نعم، لكن تأثيره محلي فقط في هذه المرحلة. هو يسمح لي بتطوير واختبار الbackend بأمان على الجهاز. لاحقًا إذا أردنا نشر المشروع online، يمكن نقل نفس بنية قاعدة البيانات والكود إلى سيرفر حقيقي أو قاعدة بيانات سحابية. لذلك XAMPP للتطوير وليس للإنتاج النهائي.
-
-27. ما الذي سيحدث بعد ذلك
-الخطوة التالية هي ربط هذا الـ backend الموثق مع Flutter حتى يستخدم التطبيق المحمول الـ API المحمية.
-
-28. خلاصة قصيرة للعرض
-تم بناء الواجهة الخلفية باستخدام Laravel و PHP. نستخدم XAMPP للتطوير المحلي، و Composer لتثبيت الحزم، و GitHub لمشاركة الكود مع الفريق، والصلاحيات المبنية على الأدوار تحافظ على بيانات كل مستخدم.
+ما الخطوة التالية بعد الواجهة الخلفية؟
+الخطوة التالية هي ربط تطبيق Flutter بهذه الـ endpoints المحمية.

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Review;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class ReviewController extends Controller
@@ -58,31 +59,40 @@ class ReviewController extends Controller
 
     public function update(Request $request, Review $review): JsonResponse
     {
-        $this->ensureReviewOwnership($request, $review);
+        $currentUser = $this->currentUser($request);
+        $review->loadMissing('property.owner');
 
-        $validated = $request->validate([
-            'property_id' => ['required', 'exists:properties,id'],
-            'rating' => ['required', 'integer', 'min:1', 'max:5'],
-            'comment' => ['nullable', 'string'],
-        ]);
+        $isReviewOwner = (int) $review->user_id === (int) $currentUser->id;
+        $isPropertyOwner = $currentUser->isOwner() && $review->property !== null && (int) $review->property->owner_id === (int) $currentUser->id;
+        $isAdmin = $currentUser->isAdmin();
 
-        $existingReview = Review::query()
-            ->where('user_id', $review->user_id)
-            ->where('property_id', $validated['property_id'])
-            ->where('id', '!=', $review->id)
-            ->exists();
+        abort_unless($isReviewOwner || $isPropertyOwner || $isAdmin, 403);
 
-        if ($existingReview) {
-            throw ValidationException::withMessages([
-                'property_id' => ['You have already reviewed this property.'],
+        if ($isReviewOwner) {
+            $validated = $request->validate([
+                'rating' => ['sometimes', 'integer', 'min:1', 'max:5'],
+                'comment' => ['sometimes', 'nullable', 'string'],
             ]);
+
+            $review->update(array_filter([
+                'rating' => $validated['rating'] ?? null,
+                'comment' => $validated['comment'] ?? null,
+            ], static fn($value) => $value !== null));
+
+            return response()->json($review->load(['user', 'property.owner', 'property.images']));
         }
 
-        $review->update([
-            'property_id' => $validated['property_id'],
-            'rating' => $validated['rating'],
-            'comment' => $validated['comment'] ?? null,
+        $validated = $request->validate([
+            'owner_reply' => ['sometimes', 'nullable', 'string'],
+            'owner_replied_at' => ['sometimes', 'nullable', 'date'],
+            'moderated_at' => ['sometimes', 'nullable', 'date'],
         ]);
+
+        $review->update(array_filter([
+            'owner_reply' => $validated['owner_reply'] ?? null,
+            'owner_replied_at' => $validated['owner_replied_at'] ?? null,
+            'moderated_at' => $validated['moderated_at'] ?? null,
+        ], static fn($value) => $value !== null));
 
         return response()->json($review->load(['user', 'property.owner', 'property.images']));
     }
