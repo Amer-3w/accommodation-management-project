@@ -22,6 +22,33 @@ class FavoriteController extends Controller
         return response()->json($favorites);
     }
 
+    public function toggle(Request $request): JsonResponse
+    {
+        $user = $this->currentUser($request);
+
+        $validated = $request->validate([
+            'property_id' => ['required', 'exists:properties,id'],
+        ]);
+
+        $favorite = Favorite::query()
+            ->where('user_id', $user->id)
+            ->where('property_id', $validated['property_id'])
+            ->first();
+
+        if ($favorite !== null) {
+            $favorite->delete();
+
+            return response()->json(['data' => ['favorited' => false]]);
+        }
+
+        $favorite = Favorite::create([
+            'user_id' => $user->id,
+            'property_id' => $validated['property_id'],
+        ]);
+
+        return response()->json(['data' => ['favorited' => true, 'favorite' => $favorite->load('property.owner', 'property.images')]]);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $user = $this->currentUser($request);

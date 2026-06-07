@@ -221,4 +221,26 @@ class BookingController extends Controller
             'message' => 'Booking deleted successfully.',
         ]);
     }
+
+    public function status(Request $request, Booking $booking): JsonResponse
+    {
+        $this->ensureBookingOwnership($request, $booking);
+
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['pending', 'approved', 'rejected', 'cancelled', 'completed', 'paid', 'confirmed'])],
+        ]);
+
+        $booking->update(['status' => $validated['status']]);
+
+        return response()->json($booking->load(['user', 'property.owner', 'property.images', 'payment']));
+    }
+
+    public function cancel(Request $request, Booking $booking): JsonResponse
+    {
+        $this->ensureBookingOwnership($request, $booking);
+
+        $booking->update(['status' => 'cancelled']);
+
+        return response()->json($booking->load(['user', 'property.owner', 'property.images', 'payment']));
+    }
 }

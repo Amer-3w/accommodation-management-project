@@ -24,6 +24,36 @@ class MessageController extends Controller
         return response()->json($messages);
     }
 
+    public function conversations(Request $request): JsonResponse
+    {
+        $user = $this->currentUser($request);
+
+        $messages = Message::with(['sender', 'receiver'])
+            ->where(function ($messageQuery) use ($user): void {
+                $messageQuery->where('sender_id', $user->id)
+                    ->orWhere('receiver_id', $user->id);
+            })
+            ->latest()
+            ->get();
+
+        $conversations = $messages
+            ->groupBy(fn(Message $message) => (int) ($message->sender_id === $user->id ? $message->receiver_id : $message->sender_id))
+            ->map(function ($group, $otherUserId) use ($user) {
+                $latest = $group->first();
+                $otherUser = $latest->sender_id === $user->id ? $latest->receiver : $latest->sender;
+
+                return [
+                    'user_id' => (int) $otherUserId,
+                    'name' => $otherUser?->name ?? 'User',
+                    'last_message' => $latest->message,
+                    'unread_count' => $group->where('receiver_id', $user->id)->whereNull('read_at')->count(),
+                ];
+            })
+            ->values();
+
+        return response()->json(['data' => $conversations]);
+    }
+
     public function show(Request $request, Message $message): JsonResponse
     {
         $user = $this->ensureMessageOwnership($request, $message);

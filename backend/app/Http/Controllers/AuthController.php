@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
+use App\Models\Favorite;
+use App\Models\Review;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use \Illuminate\Auth\AuthManager;
@@ -90,6 +94,36 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         return response()->json($request->user());
+    }
+
+    public function stats(Request $request): JsonResponse
+    {
+        $user = $this->currentUser($request);
+
+        return response()->json([
+            'data' => [
+                'bookings_count' => Booking::query()->where('user_id', $user->id)->count(),
+                'favorites_count' => Favorite::query()->where('user_id', $user->id)->count(),
+                'reviews_count' => Review::query()->where('user_id', $user->id)->count(),
+            ],
+        ]);
+    }
+
+    public function uploadPhoto(Request $request): JsonResponse
+    {
+        $user = $this->currentUser($request);
+
+        $validated = $request->validate([
+            'photo' => ['required', 'file', 'image', 'max:5120'],
+        ]);
+
+        $path = $validated['photo']->store('profile-photos', 'public');
+        $user->update(['profile_photo_path' => $path]);
+
+        return response()->json([
+            'user' => $user->fresh(),
+            'profile_photo_url' => asset('storage/' . $path),
+        ]);
     }
 
     public function updateProfile(Request $request): JsonResponse

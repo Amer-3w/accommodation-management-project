@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\SupportMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -52,6 +53,19 @@ class SupportMessageController extends Controller
         ]);
 
         return response()->json($supportMessage, 201);
+    }
+
+    public function adminContact(Request $request): JsonResponse
+    {
+        $admin = User::query()->where('role', 'admin')->first();
+
+        return response()->json([
+            'data' => [
+                'id' => $admin?->id,
+                'name' => $admin?->name ?? 'Admin',
+                'email' => $admin?->email,
+            ],
+        ]);
     }
 
     public function update(Request $request, SupportMessage $supportMessage): JsonResponse
