@@ -42,10 +42,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // FIXED: Clamps base values to prevent backend database bloat loops from producing insane numbers
-    final double rawRent = booking?.baseTotal ?? 0.0;
-    final double rent =
-        rawRent > 5000 ? 200.0 : (rawRent == 0 ? 200.0 : rawRent);
+    final double rent = booking?.basePrice ?? 0.0;
 
     final int days = booking?.numberOfDays ?? 30;
     final int months = (days / 30).ceil() < 1 ? 1 : (days / 30).ceil();
@@ -55,10 +52,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final fee = 50.0;
     final subtotal = totalRent + deposit + fee;
 
-    // Fallback to the owner's discount percentage
-    final double discountPercent = (booking?.discountPercent ?? 0.0) == 0
-        ? 20.0
-        : booking!.discountPercent!;
+    final double discountPercent = booking?.discountPercent ?? 0.0;
     final double discountVal = subtotal * (discountPercent / 100.0);
     final finalTotalAmount = subtotal - discountVal;
 

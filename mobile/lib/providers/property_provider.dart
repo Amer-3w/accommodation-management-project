@@ -32,14 +32,16 @@ class PropertyProvider extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      // Pull master list ignoring backend parameters to filter 100% reliably locally
+      // Pull the master list ignoring backend parameters to filter 100% reliably locally
       final allItems = await _service!.list();
 
       properties = allItems.where((property) {
         if (search != null && search.isNotEmpty && search != 'All') {
           final keyword = search.toLowerCase();
-          if (!property.propertyType.toLowerCase().contains(keyword) &&
-              !property.title.toLowerCase().contains(keyword)) return false;
+          final matchType =
+              property.propertyType.toLowerCase().contains(keyword);
+          final matchTitle = property.title.toLowerCase().contains(keyword);
+          if (!matchType && !matchTitle) return false;
         }
 
         if (location != null && location.isNotEmpty) {
