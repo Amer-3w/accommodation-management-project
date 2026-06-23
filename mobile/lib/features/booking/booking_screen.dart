@@ -38,14 +38,11 @@ class _BookingScreenState extends State<BookingScreen> {
     if (picked != null) setState(() => isFrom ? from = picked : to = picked);
   }
 
-  /// Calculate the booking price the same way as the summary in the UI.
-  /// Returns a map with keys: basePrice, numberOfDays, discountPercent,
-  /// discountAmount, serviceFee, securityDeposit, baseTotal, finalTotal.
+  /// Calculate the booking price.
   /// Returns null if property data hasn't loaded yet (price is 0).
   Map<String, dynamic>? _calculateFinancials() {
     final rent = property?.price ?? 0.0;
-    if (rent <= 0) return null; // Property data not loaded yet
-    
+    if (rent <= 0) return null;
     final discPct = (property?.stayDuration ?? 0).toDouble();
     int months = 1;
     int numberOfDays = 30;
@@ -55,13 +52,10 @@ class _BookingScreenState extends State<BookingScreen> {
       months = (numberOfDays / 30).ceil();
       if (months < 1) months = 1;
     }
-
     final totalRent = rent * months;
     final deposit = 100.0;
-    final fee = 0.0;
     final discountVal = (totalRent + deposit) * (discPct / 100.0);
     final total = totalRent + deposit - discountVal;
-
     return {
       'base_price': rent,
       'price_period': 'month',
@@ -69,7 +63,7 @@ class _BookingScreenState extends State<BookingScreen> {
       'base_total': totalRent,
       'discount_percent': discPct,
       'discount_amount': discountVal,
-      'service_fee': fee,
+      'service_fee': 0,
       'security_deposit': deposit,
       'final_total': total,
     };
@@ -102,6 +96,7 @@ class _BookingScreenState extends State<BookingScreen> {
     final booking = context.watch<BookingProvider>();
     final monthlyPrice = property?.price;
     final preselected = ModalRoute.of(context)!.settings.arguments is int;
+    final bool priceLoaded = (property?.price ?? 0) > 0;
     return Scaffold(
       appBar: AppBar(title: const Text('Booking Details')),
       body: ListView(
@@ -201,19 +196,33 @@ class _BookingScreenState extends State<BookingScreen> {
                 color: const Color(0xFFF7F8FA),
                 borderRadius: BorderRadius.circular(16)),
             child: Builder(builder: (context) {
-              final rent = property?.price ?? 0.0;
-              final discPct = (property?.stayDuration ?? 0).toDouble();
+              if (!priceLoaded) {
+                return const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Price Summary',
+                        style: TextStyle(fontWeight: FontWeight.w900)),
+                    SizedBox(height: 12),
+                    Center(
+                      child: Text('Loading property pricing...',
+                          style: TextStyle(
+                              color: EduStayColors.secondaryText,
+                              fontSize: 13)),
+                    ),
+                  ],
+                );
+              }
+              final rent = property!.price;
+              final discPct = (property!.stayDuration).toDouble();
               int months = 1;
               if (from != null && to != null) {
                 final days = to!.difference(from!).inDays;
                 months = (days / 30).ceil();
                 if (months < 1) months = 1;
               }
-
               final totalRent = rent * months;
               final deposit = 100.0;
-              final fee = 0.0;
-              final subtotal = totalRent + deposit + fee;
+              final subtotal = totalRent + deposit;
               final discountVal = subtotal * (discPct / 100.0);
               final total = subtotal - discountVal;
 
@@ -241,44 +250,48 @@ class _BookingScreenState extends State<BookingScreen> {
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.all(18),
         child: EduStayPrimaryButton(
-          label: 'Confirm Booking',
+          label: !priceLoaded
+              ? 'Loading...'
+              : 'Confirm Booking',
           loading: booking.loading,
-          onPressed: () async {
-            if (from == null || to == null) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Choose move-in and move-out dates.')));
-              return;
-            }
-            if (selectedPropertyId == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Select a property.')));
-              return;
-            }
-            // Calculate financials - returns null if property price not loaded yet
-            final financials = _calculateFinancials();
-            if (financials == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Property data still loading. Please wait.')));
-              return;
-            }
-            final created = await context
-                .read<BookingProvider>()
-                .create(selectedPropertyId!, from!, to!, guests,
-                    financials: financials);
-            if (context.mounted) {
-              if (created != null) {
-                // Pass both the booking ID AND the pre-calculated total
-                Navigator.pushReplacementNamed(context, PaymentScreen.route,
-                    arguments: {
-                      'bookingId': created.id,
-                      'amount': financials['final_total'],
-                    });
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Booking failed. Try different dates or check your connection.')));
-              }
-            }
-          },
+          onPressed: priceLoaded
+              ? () async {
+                  if (from == null || to == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Choose move-in and move-out dates.')));
+                    return;
+                  }
+                  if (selectedPropertyId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Select a property.')));
+                    return;
+                  }
+                  final financials = _calculateFinancials();
+                  if (financials == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Property data still loading. Please wait.')));
+                    return;
+                  }
+                  final created = await context
+                      .read<BookingProvider>()
+                      .create(selectedPropertyId!, from!, to!, guests,
+                          financials: financials);
+                  if (context.mounted) {
+                    if (created != null) {
+                      Navigator.pushReplacementNamed(
+                          context, PaymentScreen.route,
+                          arguments: {
+                            'bookingId': created.id,
+                            'amount': financials['final_total'],
+                          });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                              'Booking failed. Try different dates or check your connection.')));
+                    }
+                  }
+                }
+              : null,
         ),
       ),
     );
