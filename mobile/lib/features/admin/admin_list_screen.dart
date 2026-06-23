@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/EduStay_design.dart';
 import '../../repositories/admin_repository.dart';
+import '../chat/inbox_screen.dart';
 import 'admin_components.dart';
 
 class AdminListScreen extends StatefulWidget {
@@ -626,11 +627,30 @@ class _AdminListScreenState extends State<AdminListScreen> {
 
   Widget _actions(dynamic row) {
     final map = Map<String, dynamic>.from(row as Map);
-    return AdminActionButtons(
-      onView: () => _view(map),
-      onEdit: () => _edit(map),
-      onDelete: () => _delete(map),
-      extra: _statusButtons(map),
+    final messageBtn = (mode == 'users' || mode == 'owners')
+        ? IconButton(
+            tooltip: 'Send message',
+            icon: const Icon(Icons.chat_bubble_outline,
+                color: EduStayColors.darkGreen),
+            onPressed: () => Navigator.pushNamed(
+                context, InboxScreen.route,
+                arguments: {
+                  'user_id': map['id'],
+                  'name': map['name']?.toString() ?? 'User'
+                }),
+          )
+        : null;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (messageBtn != null) messageBtn,
+        AdminActionButtons(
+          onView: () => _view(map),
+          onEdit: () => _edit(map),
+          onDelete: () => _delete(map),
+          extra: _statusButtons(map),
+        ),
+      ],
     );
   }
 

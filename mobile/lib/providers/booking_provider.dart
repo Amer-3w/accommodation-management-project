@@ -21,20 +21,26 @@ class BookingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Booking> create(int propertyId, DateTime from, DateTime to, int guests,
+  Future<Booking?> create(int propertyId, DateTime from, DateTime to, int guests,
       {Map<String, dynamic>? financials}) async {
     loading = true;
     notifyListeners();
-    latest = await _service!.create(
-      propertyId: propertyId,
-      from: from,
-      to: to,
-      guests: guests,
-      financials: financials,
-    );
-    loading = false;
-    notifyListeners();
-    return latest!;
+    try {
+      latest = await _service!.create(
+        propertyId: propertyId,
+        from: from,
+        to: to,
+        guests: guests,
+        financials: financials,
+      );
+      loading = false;
+      notifyListeners();
+      return latest!;
+    } catch (e) {
+      loading = false;
+      notifyListeners();
+      return null;
+    }
   }
 
   Future<Booking> details(int id) async {

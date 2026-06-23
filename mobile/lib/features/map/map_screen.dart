@@ -146,13 +146,30 @@ class _MapsSetupFallback extends StatelessWidget {
             const Icon(Icons.map_outlined,
                 color: EduStayColors.darkGreen, size: 72),
             const SizedBox(height: 18),
-            const Text('Google Maps setup required',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
-            const SizedBox(height: 10),
+            const Text('Map',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+            const SizedBox(height: 12),
             Text(
-              '$markerCount property marker(s) are ready. Add real Android/iOS Google Maps API keys, then run with --dart-define=GOOGLE_MAPS_ENABLED=true.',
+              '$markerCount property locations are ready to view on the map.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: EduStayColors.secondaryText),
+              style: const TextStyle(
+                  color: EduStayColors.text, fontSize: 16),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: EduStayColors.softGreen,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Text(
+                'Map integration is in preview — add Google Maps API keys to enable full interactive mapping.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: EduStayColors.darkGreen,
+                    fontSize: 12,
+                    height: 1.4),
+              ),
             ),
           ],
         ),

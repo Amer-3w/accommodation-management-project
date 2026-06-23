@@ -46,6 +46,15 @@ class Listing extends Model
         'status',
     ];
 
+    protected $appends = ['is_booked'];
+
+    public function getIsBookedAttribute(): bool
+    {
+        return $this->bookings()
+            ->whereIn('status', ['approved', 'paid', 'confirmed'])
+            ->exists();
+    }
+
     protected function casts(): array
     {
         return [
@@ -53,6 +62,7 @@ class Listing extends Model
             'stay_duration' => 'integer',
             'rooms' => 'integer',
             'bathrooms' => 'integer',
+            'beds' => 'integer',
             'weekly_discount' => 'decimal:2',
             'monthly_discount' => 'decimal:2',
             'long_stay_discount' => 'decimal:2',

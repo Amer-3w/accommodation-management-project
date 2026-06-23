@@ -31,6 +31,7 @@ class Property {
     this.ownerWhatsapp,
     this.reviewCount = 0,
     this.reviews = const [],
+    this.isBooked = false,
   });
 
   final int id;
@@ -62,6 +63,7 @@ class Property {
   final String? ownerWhatsapp;
   final int reviewCount;
   final List<PropertyReview> reviews;
+  final bool isBooked;
 
   factory Property.fromJson(Map<String, dynamic> json) {
     // Safely extract string image URLs from lists of strings or lists of maps
@@ -122,6 +124,7 @@ class Property {
           .whereType<Map<String, dynamic>>()
           .map(PropertyReview.fromJson)
           .toList(),
+      isBooked: json['is_booked'] == true || json['is_booked'] == 1,
     );
   }
 }

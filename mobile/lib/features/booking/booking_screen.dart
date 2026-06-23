@@ -258,9 +258,15 @@ class _BookingScreenState extends State<BookingScreen> {
                 .read<BookingProvider>()
                 .create(selectedPropertyId!, from!, to!, guests,
                     financials: financials);
-            if (context.mounted)
-              Navigator.pushReplacementNamed(context, PaymentScreen.route,
-                  arguments: created.id);
+            if (context.mounted) {
+              if (created != null) {
+                Navigator.pushReplacementNamed(context, PaymentScreen.route,
+                    arguments: created.id);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Booking failed. Please try again.')));
+              }
+            }
           },
         ),
       ),
