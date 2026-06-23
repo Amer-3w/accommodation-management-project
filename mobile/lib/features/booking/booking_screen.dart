@@ -54,8 +54,8 @@ class _BookingScreenState extends State<BookingScreen> {
     }
 
     final totalRent = rent * months;
-    final deposit = rent;
-    final fee = 50.0;
+    final deposit = 100.0; // Fixed reasonable security deposit
+    final fee = 0.0; // No service fee
     final subtotal = totalRent + deposit + fee;
     final discountVal = subtotal * (discPct / 100.0);
     final total = subtotal - discountVal;
@@ -209,8 +209,8 @@ class _BookingScreenState extends State<BookingScreen> {
               }
 
               final totalRent = rent * months;
-              final deposit = rent;
-              final fee = 50.0;
+              final deposit = 100.0;
+              final fee = 0.0;
               final subtotal = totalRent + deposit + fee;
               final discountVal = subtotal * (discPct / 100.0);
               final total = subtotal - discountVal;
@@ -223,11 +223,11 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SizedBox(height: 12),
                   _PriceRow(
                       label: 'Monthly rent ($months mos)', value: totalRent),
-                  _PriceRow(label: 'Security deposit', value: deposit),
-                  const _PriceRow(label: 'Service fee', value: 50.0),
-                  _PriceRow(
-                      label: 'Owner Discount ($discPct%)',
-                      value: -discountVal),
+                  _PriceRow(label: 'Security deposit (\$100)', value: deposit),
+                  if (discPct > 0)
+                    _PriceRow(
+                        label: 'Owner Discount ($discPct%)',
+                        value: -discountVal),
                   const Divider(),
                   _PriceRow(label: 'Total', value: total, strong: true),
                 ],

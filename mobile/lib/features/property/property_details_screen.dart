@@ -165,6 +165,21 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           ]),
                         ),
                       ]),
+                      const SizedBox(height: 18),
+                      // Rooms / Beds / Bathrooms row
+                      Row(children: [
+                        _StatBox(
+                            icon: Icons.bed_outlined,
+                            label: '${property.rooms} Rooms'),
+                        const SizedBox(width: 12),
+                        _StatBox(
+                            icon: Icons.bedroom_parent_outlined,
+                            label: '${property.beds} Beds'),
+                        const SizedBox(width: 12),
+                        _StatBox(
+                            icon: Icons.bathtub_outlined,
+                            label: '${property.bathrooms} Bathrooms'),
+                      ]),
                       const SizedBox(height: 24),
                       const Text('Amenities',
                           style: TextStyle(
@@ -356,6 +371,32 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (parts.isEmpty) return 'O';
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
     return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+  }
+}
+
+class _StatBox extends StatelessWidget {
+  const _StatBox({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF7F8FA),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(children: [
+          Icon(icon, color: EduStayColors.darkGreen, size: 22),
+          const SizedBox(height: 6),
+          Text(label,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w800, fontSize: 12)),
+        ]),
+      ),
+    );
   }
 }
 

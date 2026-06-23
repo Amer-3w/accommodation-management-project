@@ -10,6 +10,8 @@ class Property {
     required this.ownerId,
     required this.rating,
     required this.rooms,
+    this.beds = 1,
+    this.bathrooms = 1,
     required this.images,
     required this.amenities,
     this.imageRecords = const [],
@@ -42,6 +44,8 @@ class Property {
   final int ownerId;
   final double rating;
   final int rooms;
+  final int beds;
+  final int bathrooms;
   final List<String> images;
   final List<String> amenities;
   final List<PropertyImageRecord> imageRecords;
@@ -96,6 +100,8 @@ class Property {
       ownerId: parseInt(json['owner_id']),
       rating: parseDouble(json['rating']),
       rooms: parseInt(json['rooms'], fallback: 1),
+      beds: parseInt(json['beds'], fallback: 1),
+      bathrooms: parseInt(json['bathrooms'], fallback: 1),
       images: extractedImages, // Use the safely parsed list
       amenities: List<String>.from(json['amenities'] ?? const []),
       imageRecords: (json['image_records'] as List<dynamic>? ?? const [])
