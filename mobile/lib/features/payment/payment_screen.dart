@@ -25,6 +25,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
   bool loading = false;
   int? bookingId;
   double amount = 0.0;
+  double baseTotal = 0.0;
+  double deposit = 0.0;
+  double serviceFee = 0.0;
+  double discountPct = 0.0;
+  double discountAmt = 0.0;
 
   @override
   void didChangeDependencies() {
@@ -37,10 +42,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
       if (a is double) amount = a;
       else if (a is int) amount = a.toDouble();
       else if (a is String) amount = double.tryParse(a) ?? 0.0;
+      // Extract breakdown if available
+      baseTotal = (arg['baseTotal'] as num?)?.toDouble() ?? 0.0;
+      deposit = (arg['deposit'] as num?)?.toDouble() ?? 100.0;
+      serviceFee = (arg['serviceFee'] as num?)?.toDouble() ?? 0.0;
+      discountPct = (arg['discountPct'] as num?)?.toDouble() ?? 0.0;
+      discountAmt = (arg['discountAmt'] as num?)?.toDouble() ?? 0.0;
     } else if (arg is int) {
       bookingId = arg;
       context.read<BookingProvider>().details(arg).then((b) {
-        if (mounted) setState(() => amount = b.finalTotal > 0 ? b.finalTotal : b.baseTotal + b.securityDeposit);
+        if (mounted) setState(() {
+          amount = b.finalTotal > 0 ? b.finalTotal : b.baseTotal + b.securityDeposit;
+          baseTotal = b.baseTotal;
+          deposit = b.securityDeposit;
+          serviceFee = b.serviceFee;
+          discountPct = b.discountPercent;
+          discountAmt = b.discountAmount;
+        });
       });
     }
   }
@@ -113,17 +131,38 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       : 'Enter cardholder name'),
             ],
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Total Amount',
-                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
-                Text('\$${amount.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 22,
-                        color: EduStayColors.darkGreen)),
-              ],
+            // Payment Summary Breakdown
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7F8FA),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Payment Summary',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
+                  const SizedBox(height: 14),
+                  if (baseTotal > 0)
+                    _BreakdownRow(label: 'Monthly rent', value: baseTotal),
+                  if (deposit > 0)
+                    _BreakdownRow(label: 'Security deposit', value: deposit),
+                  if (serviceFee > 0)
+                    _BreakdownRow(label: 'Service fee', value: serviceFee),
+                  if (discountPct > 0)
+                    _BreakdownRow(
+                        label: 'Owner discount ($discountPct%)',
+                        value: -discountAmt),
+                  const Divider(height: 24),
+                  _BreakdownRow(
+                    label: 'Total Amount',
+                    value: amount,
+                    strong: true,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -152,8 +191,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             } catch (_) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content:
-                        Text('Payment failed. Please try again.')));
+                    content: Text('Payment failed. Please try again.')));
               }
             } finally {
               if (mounted) setState(() => loading = false);
@@ -161,6 +199,43 @@ class _PaymentScreenState extends State<PaymentScreen> {
           },
         ),
       ),
+    );
+  }
+}
+
+class _BreakdownRow extends StatelessWidget {
+  const _BreakdownRow({
+    required this.label,
+    required this.value,
+    this.strong = false,
+  });
+  final String label;
+  final double value;
+  final bool strong;
+
+  @override
+  Widget build(BuildContext context) {
+    final prefix = value >= 0 ? '' : '-';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(children: [
+        Expanded(
+          child: Text(label,
+              style: TextStyle(
+                  fontWeight: strong ? FontWeight.w900 : FontWeight.w500,
+                  fontSize: strong ? 14 : 13)),
+        ),
+        const SizedBox(width: 12),
+        Text('$prefix\$${value.abs().toStringAsFixed(2)}',
+            style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: strong ? 19 : 13,
+                color: strong
+                    ? EduStayColors.darkGreen
+                    : value < 0
+                        ? EduStayColors.error
+                        : EduStayColors.text)),
+      ]),
     );
   }
 }

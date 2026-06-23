@@ -276,6 +276,11 @@ class _BookingScreenState extends State<BookingScreen> {
                     arguments: {
                       'bookingId': created.id,
                       'amount': financials['final_total'],
+                      'baseTotal': financials['base_total'],
+                      'deposit': financials['security_deposit'],
+                      'serviceFee': financials['service_fee'],
+                      'discountPct': financials['discount_percent'],
+                      'discountAmt': financials['discount_amount'],
                     });
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
