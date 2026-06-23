@@ -42,7 +42,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
       if (a is double) amount = a;
       else if (a is int) amount = a.toDouble();
       else if (a is String) amount = double.tryParse(a) ?? 0.0;
-      // Extract breakdown if available
       baseTotal = (arg['baseTotal'] as num?)?.toDouble() ?? 0.0;
       deposit = (arg['deposit'] as num?)?.toDouble() ?? 100.0;
       serviceFee = (arg['serviceFee'] as num?)?.toDouble() ?? 0.0;
@@ -131,7 +130,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       : 'Enter cardholder name'),
             ],
             const SizedBox(height: 20),
-            // Payment Summary Breakdown
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -142,8 +140,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Payment Summary',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
+                      style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
                   const SizedBox(height: 14),
                   if (baseTotal > 0)
                     _BreakdownRow(label: 'Monthly rent', value: baseTotal),
@@ -151,10 +148,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     _BreakdownRow(label: 'Security deposit', value: deposit),
                   if (serviceFee > 0)
                     _BreakdownRow(label: 'Service fee', value: serviceFee),
-                  if (discountPct > 0)
-                    _BreakdownRow(
-                        label: 'Owner discount ($discountPct%)',
-                        value: -discountAmt),
+                  // Always show discount if there is one, even 0% - but hide if literally 0
+                  _BreakdownRow(
+                      label: 'Owner discount (${discountPct.toStringAsFixed(0)}%)',
+                      value: -discountAmt),
                   const Divider(height: 24),
                   _BreakdownRow(
                     label: 'Total Amount',
