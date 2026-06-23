@@ -26,6 +26,7 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
   final price = TextEditingController();
   final rooms = TextEditingController(text: '1');
   final bathrooms = TextEditingController(text: '1');
+  final beds = TextEditingController(text: '1');
   final address = TextEditingController();
   final customRule = TextEditingController();
   final contactEmail = TextEditingController();
@@ -139,6 +140,7 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
       'location': '$finalCity, ${address.text}',
       'rooms': int.tryParse(rooms.text) ?? 1,
       'bathrooms': int.tryParse(bathrooms.text) ?? 1,
+      'beds': int.tryParse(beds.text) ?? 1,
       'property_type': propertyType,
       'city': finalCity,
       'university': finalUniversity,
@@ -289,6 +291,14 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: EduStayTextField(
+                    controller: beds,
+                    label: 'Beds',
+                    keyboardType: TextInputType.number,
+                    validator: _required),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: EduStayTextField(
                     controller: bathrooms,
                     label: 'Bathrooms',
                     keyboardType: TextInputType.number,
@@ -386,25 +396,35 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
                 label: 'Contact Email',
                 hint: 'owner@example.com'),
             const SizedBox(height: 12),
-            // Phone number with country code — aligned using matching InputDecoration
+            // Phone number with country code - aligned using same height fields
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 95,
-                  child: DropdownButtonFormField<String>(
-                    value: contactCountryCode,
+                  width: 100,
+                  child: TextFormField(
+                    controller: TextEditingController(text: contactCountryCode),
+                    readOnly: true,
                     decoration: const InputDecoration(
                       labelText: 'Code',
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
                     ),
-                    items: const ['+970', '+972', '+1']
-                        .map((c) =>
-                            DropdownMenuItem(value: c, child: Text(c)))
-                        .toList(),
-                    onChanged: (v) =>
-                        setState(() => contactCountryCode = v ?? '+970'),
+                    onTap: () => showDialog<String>(
+                      context: context,
+                      builder: (_) => SimpleDialog(
+                        title: const Text('Select Code'),
+                        children: ['+970', '+972', '+1'].map((code) =>
+                          SimpleDialogOption(
+                            onPressed: () {
+                              Navigator.pop(context, code);
+                              setState(() => contactCountryCode = code);
+                            },
+                            child: Text(code, style: const TextStyle(fontWeight: FontWeight.w800)),
+                          ),
+                        ).toList(),
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),

@@ -28,6 +28,7 @@ class Listing extends Model
         'description',
         'rooms',
         'bathrooms',
+        'beds',
         'property_type',
         'governorate',
         'city',

@@ -6,7 +6,7 @@ import '../../models/booking.dart';
 import '../../providers/booking_provider.dart';
 import '../../services/payment_service.dart';
 import '../../widgets/EduStay_components.dart';
-import '../booking/bookings_dashboard_screen.dart';
+import '../shell/EduStay_shell.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
@@ -162,8 +162,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   .read<PaymentService>()
                   .pay(bookingId: bookingId!, method: method);
               if (context.mounted) {
+                // Navigate back to app shell at Bookings tab (index 3)
                 Navigator.pushNamedAndRemoveUntil(
-                    context, BookingsDashboardScreen.route, (_) => false);
+                    context, EduStayShell.route, (_) => false,
+                    arguments: 3);
               }
             } catch (_) {
               if (context.mounted) {

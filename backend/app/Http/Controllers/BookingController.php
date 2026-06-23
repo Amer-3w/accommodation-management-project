@@ -165,16 +165,17 @@ class BookingController extends Controller
         $numberOfDays = max(1, (int) ($validated['number_of_days'] ?? $dateFrom->diffInDays($dateTo) + 1));
         $basePrice = (float) ($validated['base_price'] ?? $property->price);
         $pricePeriod = $validated['price_period'] ?? $property->price_duration ?? 'month';
-        $baseTotal = (float) ($validated['base_total'] ?? round($basePrice * $numberOfDays, 2));
 
-        $discountPercent = $validated['discount_percent'] ?? match ($pricePeriod) {
+        // Use pre-calculated values from the mobile app when provided (they match the booking screen UI)
+        // Only fall back to backend calculation if the values weren't sent.
+        $baseTotal = (float) ($validated['base_total'] ?? round($basePrice * $numberOfDays, 2));
+        $discountPercent = (float) ($validated['discount_percent'] ?? match ($pricePeriod) {
             'week' => (float) ($property->weekly_discount ?? 0),
             'month' => (float) ($property->monthly_discount ?? 0),
             default => $numberOfDays >= (int) ($property->stay_duration ?? 1)
                 ? (float) ($property->long_stay_discount ?? 0)
                 : 0.0,
-        };
-
+        });
         $discountAmount = (float) ($validated['discount_amount'] ?? round($baseTotal * ($discountPercent / 100), 2));
         $serviceFee = (float) ($validated['service_fee'] ?? 50);
         $securityDeposit = (float) ($validated['security_deposit'] ?? 0);

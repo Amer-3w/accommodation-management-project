@@ -27,7 +27,7 @@ class EduStayShell extends StatefulWidget {
 }
 
 class _EduStayShellState extends State<EduStayShell> {
-  late int index = widget.initialIndex;
+  late int index;
 
   final pages = const [
     HomeScreen(embedded: true),
@@ -40,9 +40,20 @@ class _EduStayShellState extends State<EduStayShell> {
   @override
   void initState() {
     super.initState();
+    index = widget.initialIndex;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NotificationProvider>().load();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // If navigated to with an argument, use it as the initial tab index
+    final arg = ModalRoute.of(context)?.settings.arguments;
+    if (arg is int && arg >= 0 && arg < pages.length) {
+      index = arg;
+    }
   }
 
   @override
