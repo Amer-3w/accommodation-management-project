@@ -47,26 +47,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
-  /// Calculate total the same way as the booking screen to guarantee consistency
-  double _calculateTotal() {
-    if (booking == null) return 0.0;
-    // Prefer backend's finalTotal if it's non-zero
-    if (booking!.finalTotal > 0) return booking!.finalTotal;
-    // Fall back to local calculation matching booking screen
-    final rent = booking!.basePrice;
-    final months = (booking!.numberOfDays / 30).ceil().clamp(1, 999);
-    final totalRent = rent * months;
-    final deposit = booking!.securityDeposit > 0 ? booking!.securityDeposit : rent;
-    final fee = booking!.serviceFee > 0 ? booking!.serviceFee : 50.0;
-    final subtotal = totalRent + deposit + fee;
-    final discPct = booking!.discountPercent;
-    final discVal = subtotal * (discPct / 100.0);
-    return subtotal - discVal;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final double finalAmount = _calculateTotal();
+    // Use the booking's stored finalTotal from backend directly
+    final double finalAmount = booking?.finalTotal ?? 0.0;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Payment')),
