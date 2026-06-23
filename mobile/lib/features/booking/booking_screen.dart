@@ -23,6 +23,7 @@ class _BookingScreenState extends State<BookingScreen> {
   int guests = 1;
   int? selectedPropertyId;
   bool routeInitialized = false;
+  bool _saving = false;
   final notes = TextEditingController();
 
   Future<void> _pick(bool isFrom) async {
@@ -262,43 +263,47 @@ class _BookingScreenState extends State<BookingScreen> {
         minimum: const EdgeInsets.all(18),
         child: EduStayPrimaryButton(
           label: 'Confirm Booking',
-          loading: booking.loading,
-          onPressed: () async {
-            if (from == null || to == null) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Choose move-in and move-out dates.')));
-              return;
-            }
-            if (selectedPropertyId == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Select a property.')));
-              return;
-            }
-            final financials = _calculateFinancials();
-            final created = await context
-                .read<BookingProvider>()
-                .create(selectedPropertyId!, from!, to!, guests,
-                    financials: financials);
-            if (context.mounted) {
-              if (created != null) {
-                Navigator.pushReplacementNamed(
-                    context, PaymentScreen.route,
-                    arguments: {
-                      'bookingId': created.id,
-                      'amount': financials['final_total'],
-                      'baseTotal': financials['base_total'],
-                      'deposit': financials['security_deposit'],
-                      'serviceFee': financials['service_fee'],
-                      'discountPct': financials['discount_percent'],
-                      'discountAmt': financials['discount_amount'],
-                    });
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text(
-                        'Booking failed. Try different dates or check your connection.')));
-              }
-            }
-          },
+          loading: _saving,
+          onPressed: _saving
+              ? null
+              : () async {
+                  if (from == null || to == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Choose move-in and move-out dates.')));
+                    return;
+                  }
+                  if (selectedPropertyId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Select a property.')));
+                    return;
+                  }
+                  final financials = _calculateFinancials();
+                  setState(() => _saving = true);
+                  final created = await context
+                      .read<BookingProvider>()
+                      .create(selectedPropertyId!, from!, to!, guests,
+                          financials: financials);
+                  if (mounted) setState(() => _saving = false);
+                  if (context.mounted) {
+                    if (created != null) {
+                      Navigator.pushReplacementNamed(
+                          context, PaymentScreen.route,
+                          arguments: {
+                            'bookingId': created.id,
+                            'amount': financials['final_total'],
+                            'baseTotal': financials['base_total'],
+                            'deposit': financials['security_deposit'],
+                            'serviceFee': financials['service_fee'],
+                            'discountPct': financials['discount_percent'],
+                            'discountAmt': financials['discount_amount'],
+                          });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                              'Booking failed. Try different dates or check your connection.')));
+                    }
+                  }
+                },
         ),
       ),
     );
