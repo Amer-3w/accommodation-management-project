@@ -49,17 +49,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Recalculate total exactly like the booking screen to ensure accuracy
-    final double rent = booking?.basePrice ?? 0.0;
-    final int days = booking?.numberOfDays ?? 30;
-    final int months = (days / 30).ceil().clamp(1, 999);
-    final double totalRent = rent * months;
-    final double deposit = booking?.securityDeposit ?? 100.0;
-    final double fee = booking?.serviceFee ?? 0.0;
-    final double subtotal = totalRent + deposit + fee;
-    final double discPct = booking?.discountPercent ?? 0.0;
-    final double discVal = subtotal * (discPct / 100.0);
-    final double finalAmount = subtotal - discVal;
+    // Use finalTotal from backend (what the booking screen calculated and sent)
+    // If unavailable, calculate from stored values
+    final double bookingTotal = booking?.finalTotal ?? 0.0;
+    final double baseTotal = booking?.baseTotal ?? 0.0;
+    final double deposit = booking?.securityDeposit ?? 0.0;
+    final double finalAmount = bookingTotal > 0 
+        ? bookingTotal 
+        : (baseTotal + deposit);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Payment')),
