@@ -171,11 +171,16 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
       }
     } catch (networkError) {
       debugPrint('Error during save: $networkError');
-    } finally {
       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Failed to save property: ${networkError.toString().replaceAll(RegExp(r'Exception:?\s*'), '')}')));
         setState(() => saving = false);
-        Navigator.pop(context);
       }
+      return; // Don't pop on failure, let user retry
+    }
+    if (mounted) {
+      setState(() => saving = false);
+      Navigator.pop(context);
     }
   }
 
@@ -358,9 +363,8 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
                 label: 'Contact Email',
                 hint: 'owner@example.com'),
             const SizedBox(height: 12),
-            // Phone number with country code — aligned via IntrinsicHeight + consistent height
-            SizedBox(
-              height: 60,
+            // Phone number with country code — aligned using IntrinsicHeight for matching heights
+            IntrinsicHeight(
               child: Row(children: [
                 SizedBox(
                   width: 95,
@@ -370,6 +374,7 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
                       labelText: 'Code',
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+                      isDense: true,
                     ),
                     items: const ['+970', '+972', '+1']
                         .map((c) =>

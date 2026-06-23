@@ -26,6 +26,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   bool loading = false;
   Booking? booking;
   int? bookingId;
+  bool loadError = false;
 
   @override
   void didChangeDependencies() {
@@ -35,13 +36,28 @@ class _PaymentScreenState extends State<PaymentScreen> {
     if (arg is int) {
       bookingId = arg;
       context.read<BookingProvider>().details(arg).then((value) {
-        if (mounted) setState(() => booking = value);
+        if (mounted) setState(() {
+          booking = value;
+          loadError = false;
+        });
+      }).catchError((error) {
+        if (mounted) setState(() => loadError = true);
+        debugPrint('Payment load error: $error');
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Use the backend-provided values directly from the booking object
+    final double basePrice = booking?.basePrice ?? 0.0;
+    final int days = booking?.numberOfDays ?? 1;
+    final int months = (days / 30).ceil() < 1 ? 1 : (days / 30).ceil();
+    final double totalRent = booking?.baseTotal ?? (basePrice * months);
+    final double deposit = booking?.securityDeposit ?? basePrice;
+    final double fee = booking?.serviceFee ?? 50.0;
+    final double discountPct = booking?.discountPercent ?? 0.0;
+    final double discountVal = booking?.discountAmount ?? 0.0;
     final double finalAmount = booking?.finalTotal ?? 0.0;
 
     return Scaffold(
@@ -51,6 +67,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 96),
           children: [
+            if (loadError)
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: EduStayColors.error.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text('Could not load booking details. Please try again.',
+                    style: TextStyle(color: EduStayColors.error)),
+              ),
             const Text('Payment Method',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
             const SizedBox(height: 10),
@@ -122,18 +149,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   const Text('Payment Summary',
                       style: TextStyle(fontWeight: FontWeight.w900)),
                   const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Total Amount',
-                          style: TextStyle(fontWeight: FontWeight.w900)),
-                      Text('\$${finalAmount.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 22,
-                              color: EduStayColors.darkGreen)),
-                    ],
-                  ),
+                  _SummaryRow(
+                      label: 'Monthly rent ($months mos)',
+                      value: '\$${totalRent.toStringAsFixed(2)}'),
+                  _SummaryRow(
+                      label: 'Security deposit',
+                      value: '\$${deposit.toStringAsFixed(2)}'),
+                  _SummaryRow(
+                      label: 'Service fee',
+                      value: '\$${fee.toStringAsFixed(2)}'),
+                  if (discountPct > 0)
+                    _SummaryRow(
+                        label: 'Owner Discount ($discountPct%)',
+                        value: '-\$${discountVal.toStringAsFixed(2)}'),
+                  const Divider(),
+                  _SummaryRow(
+                      label: 'Total Amount',
+                      value: '\$${finalAmount.toStringAsFixed(2)}',
+                      strong: true),
                 ],
               ),
             ),
@@ -149,6 +182,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           color: EduStayColors.success,
           loading: loading,
           onPressed: () async {
+            if (booking == null) return;
             if (method == 'card' && !formKey.currentState!.validate()) return;
             setState(() => loading = true);
             try {
@@ -160,7 +194,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     context, BookingsDashboardScreen.route, (_) => false);
               }
             } catch (_) {
-              if (context.mounted) Navigator.of(context).pop();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Payment failed. Please try again.')));
+              }
             } finally {
               if (mounted) setState(() => loading = false);
             }
@@ -214,6 +251,32 @@ class _MethodTile extends StatelessWidget {
           ]),
         ]),
       ),
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  const _SummaryRow(
+      {required this.label, required this.value, this.strong = false});
+  final String label;
+  final String value;
+  final bool strong;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(children: [
+        Text(label,
+            style: TextStyle(
+                fontWeight: strong ? FontWeight.w900 : FontWeight.w500)),
+        const Spacer(),
+        Text(value,
+            style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: strong ? 19 : 13,
+                color: strong ? EduStayColors.darkGreen : EduStayColors.text)),
+      ]),
     );
   }
 }

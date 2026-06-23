@@ -17,13 +17,19 @@ class BookingService {
     required DateTime from,
     required DateTime to,
     required int guests,
+    Map<String, dynamic>? financials,
   }) async {
-    final json = await _repository.create({
+    final body = <String, dynamic>{
       'property_id': propertyId,
       'date_from': from.toIso8601String().substring(0, 10),
       'date_to': to.toIso8601String().substring(0, 10),
       'guests': guests,
-    });
+    };
+    // Merge pre-calculated financials if provided so the backend uses our values
+    if (financials != null) {
+      body.addAll(financials);
+    }
+    final json = await _repository.create(body);
     return Booking.fromJson(asMapData(json));
   }
 

@@ -30,7 +30,7 @@ class _BookingScreenState extends State<BookingScreen> {
       context: context,
       firstDate: DateTime.now(),
       lastDate: DateTime.now()
-          .add(const Duration(days: 18250)), // Extends limit to 50 years
+          .add(const Duration(days: 18250)),
       initialDate: isFrom
           ? (from ?? DateTime.now())
           : (to ?? DateTime.now().add(const Duration(days: 30))),
@@ -38,9 +38,43 @@ class _BookingScreenState extends State<BookingScreen> {
     if (picked != null) setState(() => isFrom ? from = picked : to = picked);
   }
 
+  /// Calculate the booking price the same way as the summary in the UI.
+  /// Returns a map with keys: basePrice, numberOfDays, discountPercent,
+  /// discountAmount, serviceFee, securityDeposit, baseTotal, finalTotal.
+  Map<String, dynamic> _calculateFinancials() {
+    final rent = property?.price ?? 0.0;
+    final discPct = (property?.stayDuration ?? 0).toDouble();
+    int months = 1;
+    int numberOfDays = 30;
+    if (from != null && to != null) {
+      numberOfDays = to!.difference(from!).inDays;
+      if (numberOfDays < 1) numberOfDays = 1;
+      months = (numberOfDays / 30).ceil();
+      if (months < 1) months = 1;
+    }
+
+    final totalRent = rent * months;
+    final deposit = rent;
+    final fee = 50.0;
+    final subtotal = totalRent + deposit + fee;
+    final discountVal = subtotal * (discPct / 100.0);
+    final total = subtotal - discountVal;
+
+    return {
+      'base_price': rent,
+      'price_period': 'month',
+      'number_of_days': numberOfDays,
+      'base_total': totalRent,
+      'discount_percent': discPct,
+      'discount_amount': discountVal,
+      'service_fee': fee,
+      'security_deposit': deposit,
+      'final_total': total,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    // FIXED: Uses safe type-checking ('is Property') instead of an explicit cast to completely kill the red screen crash
     final arg = ModalRoute.of(context)?.settings.arguments;
     Property? property = arg is Property ? arg : null;
 
@@ -61,8 +95,6 @@ class _BookingScreenState extends State<BookingScreen> {
 
     final properties = context.watch<PropertyProvider>().properties;
     final selectedFromList = _findProperty(properties, selectedPropertyId);
-
-    // Assigns the value cleanly across the state layers
     property = selectedFromList ?? context.watch<PropertyProvider>().selected;
 
     final booking = context.watch<BookingProvider>();
@@ -167,8 +199,8 @@ class _BookingScreenState extends State<BookingScreen> {
                 color: const Color(0xFFF7F8FA),
                 borderRadius: BorderRadius.circular(16)),
             child: Builder(builder: (context) {
-              // FIXED: Successfully reads the dynamic rent price data from the extracted property variable
               final rent = property?.price ?? 0.0;
+              final discPct = (property?.stayDuration ?? 0).toDouble();
               int months = 1;
               if (from != null && to != null) {
                 final days = to!.difference(from!).inDays;
@@ -180,11 +212,7 @@ class _BookingScreenState extends State<BookingScreen> {
               final deposit = rent;
               final fee = 50.0;
               final subtotal = totalRent + deposit + fee;
-
-              // FIXED: Correctly pulls the owner's custom percentage out of the stayDuration storage slot natively
-              final double discountPercent =
-                  (property?.stayDuration ?? 0).toDouble();
-              final double discountVal = subtotal * (discountPercent / 100.0);
+              final discountVal = subtotal * (discPct / 100.0);
               final total = subtotal - discountVal;
 
               return Column(
@@ -198,7 +226,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   _PriceRow(label: 'Security deposit', value: deposit),
                   const _PriceRow(label: 'Service fee', value: 50.0),
                   _PriceRow(
-                      label: 'Owner Discount ($discountPercent%)',
+                      label: 'Owner Discount ($discPct%)',
                       value: -discountVal),
                   const Divider(),
                   _PriceRow(label: 'Total', value: total, strong: true),
@@ -224,9 +252,12 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SnackBar(content: Text('Select a property.')));
               return;
             }
+            // Pre-calculate financials so the backend uses our values
+            final financials = _calculateFinancials();
             final created = await context
                 .read<BookingProvider>()
-                .create(selectedPropertyId!, from!, to!, guests);
+                .create(selectedPropertyId!, from!, to!, guests,
+                    financials: financials);
             if (context.mounted)
               Navigator.pushReplacementNamed(context, PaymentScreen.route,
                   arguments: created.id);
