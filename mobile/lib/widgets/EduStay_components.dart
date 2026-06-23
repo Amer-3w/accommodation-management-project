@@ -280,6 +280,25 @@ class _FigmaPropertyCardState extends State<FigmaPropertyCard> {
                             ),
                     ),
                     Positioned(
+                      left: 10,
+                      top: 10,
+                      child: widget.property.isBooked
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: EduStayColors.error,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text('Booked',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800)),
+                            )
+                          : const SizedBox(),
+                    ),
+                    Positioned(
                       right: 10,
                       top: 10,
                       child: GestureDetector(
