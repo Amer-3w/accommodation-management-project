@@ -31,21 +31,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
     super.didChangeDependencies();
     if (bookingId != null) return;
     final arg = ModalRoute.of(context)!.settings.arguments;
-    if (arg is Map) {
-      bookingId = arg['bookingId'] as int?;
+    if (arg is Map && arg['bookingId'] is int) {
+      bookingId = arg['bookingId'] as int;
       final a = arg['amount'];
-      if (a is double) {
-        amount = a;
-      } else if (a is int) {
-        amount = a.toDouble();
-      } else if (a is String) {
-        amount = double.tryParse(a) ?? 0.0;
-      }
+      if (a is double) amount = a;
+      else if (a is int) amount = a.toDouble();
+      else if (a is String) amount = double.tryParse(a) ?? 0.0;
     } else if (arg is int) {
       bookingId = arg;
-      // Load booking to get amount for backward compatibility
       context.read<BookingProvider>().details(arg).then((b) {
-        if (mounted) setState(() => amount = b.finalTotal > 0 ? b.finalTotal : (b.baseTotal + b.securityDeposit));
+        if (mounted) setState(() => amount = b.finalTotal > 0 ? b.finalTotal : b.baseTotal + b.securityDeposit);
       });
     }
   }

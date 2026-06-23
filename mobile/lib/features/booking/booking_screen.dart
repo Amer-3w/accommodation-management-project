@@ -41,8 +41,11 @@ class _BookingScreenState extends State<BookingScreen> {
   /// Calculate the booking price the same way as the summary in the UI.
   /// Returns a map with keys: basePrice, numberOfDays, discountPercent,
   /// discountAmount, serviceFee, securityDeposit, baseTotal, finalTotal.
-  Map<String, dynamic> _calculateFinancials() {
+  /// Returns null if property data hasn't loaded yet (price is 0).
+  Map<String, dynamic>? _calculateFinancials() {
     final rent = property?.price ?? 0.0;
+    if (rent <= 0) return null; // Property data not loaded yet
+    
     final discPct = (property?.stayDuration ?? 0).toDouble();
     int months = 1;
     int numberOfDays = 30;
@@ -54,11 +57,10 @@ class _BookingScreenState extends State<BookingScreen> {
     }
 
     final totalRent = rent * months;
-    final deposit = 100.0; // Fixed reasonable security deposit
-    final fee = 0.0; // No service fee
-    final subtotal = totalRent + deposit + fee;
-    final discountVal = subtotal * (discPct / 100.0);
-    final total = subtotal - discountVal;
+    final deposit = 100.0;
+    final fee = 0.0;
+    final discountVal = (totalRent + deposit) * (discPct / 100.0);
+    final total = totalRent + deposit - discountVal;
 
     return {
       'base_price': rent,
@@ -252,8 +254,13 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SnackBar(content: Text('Select a property.')));
               return;
             }
-            // Pre-calculate financials so the backend uses our values
+            // Calculate financials - returns null if property price not loaded yet
             final financials = _calculateFinancials();
+            if (financials == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Property data still loading. Please wait.')));
+              return;
+            }
             final created = await context
                 .read<BookingProvider>()
                 .create(selectedPropertyId!, from!, to!, guests,
@@ -261,7 +268,6 @@ class _BookingScreenState extends State<BookingScreen> {
             if (context.mounted) {
               if (created != null) {
                 // Pass both the booking ID AND the pre-calculated total
-                // so payment screen always shows the correct amount
                 Navigator.pushReplacementNamed(context, PaymentScreen.route,
                     arguments: {
                       'bookingId': created.id,
