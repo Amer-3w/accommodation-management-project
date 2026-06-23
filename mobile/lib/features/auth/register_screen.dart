@@ -148,11 +148,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
                     value: city,
+                    isExpanded: true,
                     decoration: const InputDecoration(
                         labelText: 'City', hintText: 'Select your city'),
                     items: PalestineAcademicData.cities
-                        .map((item) =>
-                            DropdownMenuItem(value: item, child: Text(item)))
+                        .map((item) => DropdownMenuItem(
+                            value: item,
+                            child: Text(item,
+                                overflow: TextOverflow.ellipsis)))
                         .toList(),
                     validator: (value) =>
                         value == null ? 'City is required' : null,
@@ -164,12 +167,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
                     value: university,
+                    isExpanded: true,
                     decoration: const InputDecoration(
                         labelText: 'University',
                         hintText: 'Select your university'),
                     items: PalestineAcademicData.universitiesFor(city)
-                        .map((item) =>
-                            DropdownMenuItem(value: item, child: Text(item)))
+                        .map((item) => DropdownMenuItem(
+                            value: item,
+                            child: Text(item,
+                                overflow: TextOverflow.ellipsis)))
                         .toList(),
                     validator: (value) =>
                         value == null ? 'University is required' : null,
