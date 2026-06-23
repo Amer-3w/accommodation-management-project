@@ -29,7 +29,7 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
   final address = TextEditingController();
   final customRule = TextEditingController();
   final contactEmail = TextEditingController();
-  final contactWhatsapp = TextEditingController();
+  final contactPhone = TextEditingController();
   String propertyType = 'Apartment';
   String priceDuration = 'month';
   int stayDuration = 0;
@@ -66,7 +66,7 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
       selectedRules.addAll(arg.rules);
       contactEmail.text = arg.contactEmail ?? '';
       contactCountryCode = arg.contactWhatsappCountryCode ?? '+970';
-      contactWhatsapp.text = arg.contactWhatsappNumber ?? '';
+      contactPhone.text = arg.contactWhatsappNumber ?? '';
       contactType = arg.contactType;
       city = arg.city;
       university = arg.university;
@@ -124,9 +124,9 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
       'contact_email':
           contactEmail.text.trim().isEmpty ? null : contactEmail.text.trim(),
       'contact_whatsapp_country_code': contactCountryCode,
-      'contact_whatsapp_number': contactWhatsapp.text.trim().isEmpty
+      'contact_whatsapp_number': contactPhone.text.trim().isEmpty
           ? null
-          : contactWhatsapp.text.trim(),
+          : contactPhone.text.trim(),
       'contact_type': contactType,
     };
 
@@ -139,21 +139,35 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
       int? propertyId;
       if (editing != null) {
         propertyId = editing!.id;
-      } else if (response is Map) {
-        if (response['data'] != null && response['data'] is Map) {
-          propertyId = int.tryParse(response['data']['id']?.toString() ?? '');
-        }
-        propertyId ??= int.tryParse(response['id']?.toString() ?? '') ??
-            int.tryParse(response['listing_id']?.toString() ?? '');
+      } else {
+        // Backend ListingController::store returns the model JSON directly
+        // (not wrapped in {'data': ...}), so 'id' is at the top level.
+        propertyId = response['id'] is int
+            ? response['id'] as int
+            : int.tryParse(response['id']?.toString() ?? '');
+        // Fallback in case response is nested
+        propertyId ??= response['data'] is Map
+            ? (response['data']['id'] is int
+                ? response['data']['id'] as int
+                : int.tryParse(response['data']['id']?.toString() ?? ''))
+            : null;
       }
 
       if (propertyId != null && propertyId > 0) {
         for (final imageId in deletedImageIds) {
-          await repo.deleteImage(propertyId, imageId);
+          try {
+            await repo.deleteImage(propertyId, imageId);
+          } catch (_) {}
         }
         for (final file in images) {
-          await repo.uploadImage(propertyId, file);
+          try {
+            await repo.uploadImage(propertyId, file);
+          } catch (e) {
+            debugPrint('Image upload failed: $e');
+          }
         }
+      } else {
+        debugPrint('Warning: could not extract property ID from response: $response');
       }
     } catch (networkError) {
       debugPrint('Error during save: $networkError');
@@ -344,29 +358,37 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
                 label: 'Contact Email',
                 hint: 'owner@example.com'),
             const SizedBox(height: 12),
-            Row(children: [
-              SizedBox(
-                width:
-                    95, // FIXED: Expanded from 80 to 95 to completely clear the 15-pixel right overflow error
-                child: DropdownButtonFormField<String>(
-                  value: contactCountryCode,
-                  decoration: const InputDecoration(labelText: 'Code'),
-                  items: const ['+970', '+972', '+1']
-                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                      .toList(),
-                  onChanged: (v) =>
-                      setState(() => contactCountryCode = v ?? '+970'),
+            // Phone number with country code — aligned via IntrinsicHeight + consistent height
+            SizedBox(
+              height: 60,
+              child: Row(children: [
+                SizedBox(
+                  width: 95,
+                  child: DropdownButtonFormField<String>(
+                    value: contactCountryCode,
+                    decoration: const InputDecoration(
+                      labelText: 'Code',
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+                    ),
+                    items: const ['+970', '+972', '+1']
+                        .map((c) =>
+                            DropdownMenuItem(value: c, child: Text(c)))
+                        .toList(),
+                    onChanged: (v) =>
+                        setState(() => contactCountryCode = v ?? '+970'),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: EduStayTextField(
-                    controller: contactWhatsapp,
-                    label: 'WhatsApp Number',
-                    hint: '599123456',
-                    keyboardType: TextInputType.number),
-              ),
-            ]),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: EduStayTextField(
+                      controller: contactPhone,
+                      label: 'Phone Number',
+                      hint: '599123456',
+                      keyboardType: TextInputType.number),
+                ),
+              ]),
+            ),
             const SizedBox(height: 20),
             const Text('Property Gallery Images',
                 style: TextStyle(

@@ -6,7 +6,7 @@ import '../../models/booking.dart';
 import '../../providers/booking_provider.dart';
 import '../../services/payment_service.dart';
 import '../../widgets/EduStay_components.dart';
-import '../booking/booking_success_screen.dart';
+import '../booking/bookings_dashboard_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
@@ -42,19 +42,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double rent = booking?.basePrice ?? 0.0;
-
-    final int days = booking?.numberOfDays ?? 30;
-    final int months = (days / 30).ceil() < 1 ? 1 : (days / 30).ceil();
-
-    final totalRent = rent * months;
-    final deposit = rent;
-    final fee = 50.0;
-    final subtotal = totalRent + deposit + fee;
-
-    final double discountPercent = booking?.discountPercent ?? 0.0;
-    final double discountVal = subtotal * (discountPercent / 100.0);
-    final finalTotalAmount = subtotal - discountVal;
+    final double finalAmount = booking?.finalTotal ?? 0.0;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Payment')),
@@ -81,7 +69,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 onTap: () => setState(() => method = 'cash')),
             const SizedBox(height: 18),
 
-            // RESTORED: Re-injects the missing card credential entry form text inputs completely
             if (method == 'card') ...[
               EduStayTextField(
                   controller: card,
@@ -135,23 +122,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   const Text('Payment Summary',
                       style: TextStyle(fontWeight: FontWeight.w900)),
                   const SizedBox(height: 12),
-                  _SummaryRow(
-                      label: 'Monthly rent ($months mos)',
-                      value: '\$${totalRent.toStringAsFixed(2)}'),
-                  _SummaryRow(
-                      label: 'Security deposit',
-                      value: '\$${deposit.toStringAsFixed(2)}'),
-                  _SummaryRow(
-                      label: 'Service fee',
-                      value: '\$${fee.toStringAsFixed(2)}'),
-                  _SummaryRow(
-                      label: 'Owner Discount ($discountPercent%)',
-                      value: '-\$${discountVal.toStringAsFixed(2)}'),
-                  const Divider(),
-                  _SummaryRow(
-                      label: 'Total Amount',
-                      value: '\$${finalTotalAmount.toStringAsFixed(2)}',
-                      strong: true),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Total Amount',
+                          style: TextStyle(fontWeight: FontWeight.w900)),
+                      Text('\$${finalAmount.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 22,
+                              color: EduStayColors.darkGreen)),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -163,7 +145,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: EduStayPrimaryButton(
           label: booking == null
               ? 'Loading...'
-              : 'Pay \$${finalTotalAmount.toStringAsFixed(2)}',
+              : 'Pay \$${finalAmount.toStringAsFixed(2)}',
           color: EduStayColors.success,
           loading: loading,
           onPressed: () async {
@@ -174,7 +156,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   .read<PaymentService>()
                   .pay(bookingId: bookingId!, method: method);
               if (context.mounted) {
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.pushNamedAndRemoveUntil(
+                    context, BookingsDashboardScreen.route, (_) => false);
               }
             } catch (_) {
               if (context.mounted) Navigator.of(context).pop();
@@ -231,32 +214,6 @@ class _MethodTile extends StatelessWidget {
           ]),
         ]),
       ),
-    );
-  }
-}
-
-class _SummaryRow extends StatelessWidget {
-  const _SummaryRow(
-      {required this.label, required this.value, this.strong = false});
-  final String label;
-  final String value;
-  final bool strong;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(children: [
-        Text(label,
-            style: TextStyle(
-                fontWeight: strong ? FontWeight.w900 : FontWeight.w500)),
-        const Spacer(),
-        Text(value,
-            style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: strong ? 19 : 13,
-                color: strong ? EduStayColors.darkGreen : EduStayColors.text)),
-      ]),
     );
   }
 }

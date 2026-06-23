@@ -11,6 +11,7 @@ class PropertyProvider extends ChangeNotifier {
   Property? selected;
   bool loading = false;
   String? error;
+  bool hasActiveFilters = false;
 
   void attach(PropertyService service) => _service = service;
 
@@ -30,6 +31,16 @@ class PropertyProvider extends ChangeNotifier {
   }) async {
     loading = true;
     error = null;
+    // Track whether any filter is active
+    hasActiveFilters = search?.isNotEmpty == true ||
+        location?.isNotEmpty == true ||
+        rooms != null ||
+        minPrice != null ||
+        maxPrice != null ||
+        (propertyType?.isNotEmpty == true) ||
+        (amenities?.isNotEmpty == true) ||
+        availableOnly == true ||
+        (rating != null && rating > 0);
     notifyListeners();
     try {
       // Pull the master list ignoring backend parameters to filter 100% reliably locally

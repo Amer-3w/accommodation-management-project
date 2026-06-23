@@ -22,10 +22,10 @@ class _ListingsScreenState extends State<ListingsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Only load all properties if the list is empty (e.g. initial load).
+      // Only load all properties if no filters are active.
       // Search screen passes filtered results, so we should not overwrite them.
       final provider = context.read<PropertyProvider>();
-      if (provider.properties.isEmpty) {
+      if (!provider.hasActiveFilters) {
         provider.load();
       }
       context.read<FavoriteProvider>().load();
