@@ -17,20 +17,22 @@ class PropertyImageController extends Controller
     public function store(Request $request, Listing $listing): JsonResponse
     {
         $this->ensurePropertyOwnership($request, $listing);
-
-        $validated = $request->validate([
-            'path' => ['required', 'string', 'max:255'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
+        $request->validate([
+            'path' => ['required', 'file', 'image', 'max:5120'],
         ]);
+
+        $uploadedPath = $request->file('path')->store('listings', 'public');
+        $fullUrl = asset('storage/' . $uploadedPath);
 
         $propertyImage = PropertyImage::create([
             'property_id' => $listing->id,
-            'path' => $validated['path'],
-            'sort_order' => $validated['sort_order'] ?? 0,
+            'path' => $fullUrl,
+            'sort_order' => $request->input('sort_order', 0),
         ]);
 
         return response()->json($propertyImage->load('property.owner'), 201);
     }
+
 
     public function update(Request $request, PropertyImage $propertyImage): JsonResponse
     {

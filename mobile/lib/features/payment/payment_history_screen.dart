@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/network/api_client.dart';
-import '../../core/theme/studyhub_design.dart';
+import '../../core/theme/EduStay_design.dart';
 
 class PaymentHistoryScreen extends StatefulWidget {
   const PaymentHistoryScreen({super.key});
@@ -38,19 +38,30 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
         body: loading
             ? const Center(child: CircularProgressIndicator())
             : rows.isEmpty
-                ? const Center(child: Text('No payments yet.', style: TextStyle(color: StudyHubColors.secondaryText)))
+                ? const Center(
+                    child: Text('No payments yet.',
+                        style: TextStyle(color: EduStayColors.secondaryText)))
                 : ListView.separated(
                     padding: const EdgeInsets.all(18),
                     itemBuilder: (_, index) {
                       final row = rows[index] as Map<String, dynamic>;
                       final booking = row['booking'] as Map<String, dynamic>?;
-                      final property = booking?['property'] as Map<String, dynamic>?;
+                      final property =
+                          booking?['property'] as Map<String, dynamic>?;
                       return ListTile(
                         tileColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        title: Text(property?['title']?.toString() ?? 'Property', style: const TextStyle(fontWeight: FontWeight.w900)),
-                        subtitle: Text('${row['method']} - ${row['status']} - ${row['created_at'] ?? ''}'),
-                        trailing: Text('\$${row['amount']}', style: const TextStyle(color: StudyHubColors.darkGreen, fontWeight: FontWeight.w900)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                        title: Text(
+                            property?['title']?.toString() ?? 'Property',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w900)),
+                        subtitle: Text(
+                            '${row['method']} - ${row['status']} - ${row['created_at'] ?? ''}'),
+                        trailing: Text('\$${row['amount']}',
+                            style: const TextStyle(
+                                color: EduStayColors.darkGreen,
+                                fontWeight: FontWeight.w900)),
                       );
                     },
                     separatorBuilder: (_, __) => const SizedBox(height: 10),

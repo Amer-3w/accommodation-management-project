@@ -63,40 +63,67 @@ class Property {
   final int reviewCount;
   final List<PropertyReview> reviews;
 
-  factory Property.fromJson(Map<String, dynamic> json) => Property(
-        id: parseInt(json['id']),
-        title: parseString(json['title']),
-        price: parseDouble(json['price']),
-        location: parseString(json['location']),
-        description: json['description'] ?? '',
-        ownerId: parseInt(json['owner_id']),
-        rating: parseDouble(json['rating']),
-        rooms: parseInt(json['rooms'], fallback: 1),
-        images: List<String>.from(json['images'] ?? const []),
-        amenities: List<String>.from(json['amenities'] ?? const []),
-        imageRecords: (json['image_records'] as List<dynamic>? ?? const []).whereType<Map<String, dynamic>>().map(PropertyImageRecord.fromJson).toList(),
-        priceDuration: json['price_duration'] ?? 'month',
-        stayDuration: parseInt(json['stay_duration'], fallback: 1),
-        propertyType: json['property_type'] ?? 'Apartment',
-        rules: List<String>.from(json['rules'] ?? const []),
-        contactEmail: json['contact_email'],
-        contactWhatsappCountryCode: json['contact_whatsapp_country_code'],
-        contactWhatsappNumber: json['contact_whatsapp_number'],
-        contactType: json['contact_type'] ?? 'email',
-        latitude: json['latitude'] == null ? null : parseDouble(json['latitude']),
-        longitude: json['longitude'] == null ? null : parseDouble(json['longitude']),
-        governorate: json['governorate'],
-        city: json['city'],
-        university: json['university'],
-        address: json['address'],
-        ownerName: json['owner_name'],
-        ownerWhatsapp: json['owner_whatsapp'],
-        reviewCount: parseInt(json['review_count']),
-        reviews: (json['reviews'] as List<dynamic>? ?? const [])
-            .whereType<Map<String, dynamic>>()
-            .map(PropertyReview.fromJson)
-            .toList(),
-      );
+  factory Property.fromJson(Map<String, dynamic> json) {
+    // Safely extract string image URLs from lists of strings or lists of maps
+    final List<String> extractedImages = [];
+    if (json['images'] != null && json['images'] is List) {
+      for (var item in json['images']) {
+        if (item is Map) {
+          final urlStr = item['url'] ??
+              item['image_url'] ??
+              item['path'] ??
+              item['image_path'];
+          if (urlStr != null) extractedImages.add(urlStr.toString());
+        } else if (item != null) {
+          extractedImages.add(item.toString());
+        }
+      }
+    }
+
+    // Fallback placeholder image if no images exist anywhere in the database record
+    if (extractedImages.isEmpty) {
+      extractedImages.add('https://picsum.photos');
+    }
+
+    return Property(
+      id: parseInt(json['id']),
+      title: parseString(json['title']),
+      price: parseDouble(json['price']),
+      location: parseString(json['location']),
+      description: json['description'] ?? '',
+      ownerId: parseInt(json['owner_id']),
+      rating: parseDouble(json['rating']),
+      rooms: parseInt(json['rooms'], fallback: 1),
+      images: extractedImages, // Use the safely parsed list
+      amenities: List<String>.from(json['amenities'] ?? const []),
+      imageRecords: (json['image_records'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(PropertyImageRecord.fromJson)
+          .toList(),
+      priceDuration: json['price_duration'] ?? 'month',
+      stayDuration: parseInt(json['stay_duration'], fallback: 1),
+      propertyType: json['property_type'] ?? 'Apartment',
+      rules: List<String>.from(json['rules'] ?? const []),
+      contactEmail: json['contact_email'],
+      contactWhatsappCountryCode: json['contact_whatsapp_country_code'],
+      contactWhatsappNumber: json['contact_whatsapp_number'],
+      contactType: json['contact_type'] ?? 'email',
+      latitude: json['latitude'] == null ? null : parseDouble(json['latitude']),
+      longitude:
+          json['longitude'] == null ? null : parseDouble(json['longitude']),
+      governorate: json['governorate'],
+      city: json['city'],
+      university: json['university'],
+      address: json['address'],
+      ownerName: json['owner_name'],
+      ownerWhatsapp: json['owner_whatsapp'],
+      reviewCount: parseInt(json['review_count']),
+      reviews: (json['reviews'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(PropertyReview.fromJson)
+          .toList(),
+    );
+  }
 }
 
 class PropertyImageRecord {
@@ -104,7 +131,8 @@ class PropertyImageRecord {
   final int id;
   final String url;
 
-  factory PropertyImageRecord.fromJson(Map<String, dynamic> json) => PropertyImageRecord(
+  factory PropertyImageRecord.fromJson(Map<String, dynamic> json) =>
+      PropertyImageRecord(
         id: parseInt(json['id']),
         url: parseString(json['url']),
       );

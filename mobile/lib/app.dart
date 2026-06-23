@@ -33,26 +33,27 @@ import 'features/profile/profile_screen.dart';
 import 'features/property/property_details_screen.dart';
 import 'features/search/search_screen.dart';
 import 'features/settings/settings_screen.dart';
-import 'features/shell/studyhub_shell.dart';
+import 'features/shell/EduStay_shell.dart';
 import 'features/support/help_support_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/settings_provider.dart';
 
-class StudyHubApp extends StatelessWidget {
-  const StudyHubApp({super.key});
+class EduStayApp extends StatelessWidget {
+  const EduStayApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<AuthProvider, SettingsProvider>(
       builder: (context, auth, settings, _) => MaterialApp(
-        title: 'StudyHub',
+        title: 'EduStay',
         debugShowCheckedModeBanner: false,
         locale: settings.locale,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: settings.themeMode,
         builder: (context, child) => Directionality(
-          textDirection: settings.isArabic ? TextDirection.rtl : TextDirection.ltr,
+          textDirection:
+              settings.isArabic ? TextDirection.rtl : TextDirection.ltr,
           child: child ?? const SizedBox.shrink(),
         ),
         initialRoute: SplashScreen.route,
@@ -65,7 +66,7 @@ class StudyHubApp extends StatelessWidget {
           AdminDashboardScreen.route: (_) => const AdminDashboardScreen(),
           AdminListScreen.route: (_) => const AdminListScreen(),
           AdminUserFormScreen.route: (_) => const AdminUserFormScreen(),
-          StudyHubShell.route: (_) => const StudyHubShell(),
+          EduStayShell.route: (_) => const EduStayShell(),
           HomeScreen.route: (_) => const HomeScreen(),
           SearchScreen.route: (_) => const SearchScreen(),
           ListingsScreen.route: (_) => const ListingsScreen(),

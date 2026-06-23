@@ -9,7 +9,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: appProviders,
-      child: const StudyHubApp(),
+      child: const EduStayApp(),
     ),
   );
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/theme/studyhub_design.dart';
+import '../../core/theme/EduStay_design.dart';
 import '../../providers/property_provider.dart';
 
 class MapScreen extends StatefulWidget {
@@ -19,12 +19,14 @@ class _MapScreenState extends State<MapScreen> {
   final search = TextEditingController();
   GoogleMapController? controller;
   static const palestineCenter = LatLng(31.9522, 35.2332);
-  static const mapsEnabled = bool.fromEnvironment('GOOGLE_MAPS_ENABLED', defaultValue: false);
+  static const mapsEnabled =
+      bool.fromEnvironment('GOOGLE_MAPS_ENABLED', defaultValue: false);
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<PropertyProvider>().load());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => context.read<PropertyProvider>().load());
   }
 
   @override
@@ -33,15 +35,21 @@ class _MapScreenState extends State<MapScreen> {
     if (!mapsEnabled) {
       return _MapsSetupFallback(
         embedded: widget.embedded,
-        markerCount: properties.where((property) => property.latitude != null && property.longitude != null).length,
+        markerCount: properties
+            .where((property) =>
+                property.latitude != null && property.longitude != null)
+            .length,
       );
     }
     final markers = properties
-        .where((property) => property.latitude != null && property.longitude != null)
+        .where((property) =>
+            property.latitude != null && property.longitude != null)
         .map((property) => Marker(
               markerId: MarkerId('property-${property.id}'),
               position: LatLng(property.latitude!, property.longitude!),
-              infoWindow: InfoWindow(title: property.title, snippet: '\$${property.price.toStringAsFixed(0)}/month'),
+              infoWindow: InfoWindow(
+                  title: property.title,
+                  snippet: '\$${property.price.toStringAsFixed(0)}/month'),
             ))
         .toSet();
 
@@ -51,7 +59,8 @@ class _MapScreenState extends State<MapScreen> {
         child: Stack(
           children: [
             GoogleMap(
-              initialCameraPosition: const CameraPosition(target: palestineCenter, zoom: 8),
+              initialCameraPosition:
+                  const CameraPosition(target: palestineCenter, zoom: 8),
               markers: markers,
               myLocationButtonEnabled: true,
               zoomControlsEnabled: true,
@@ -71,16 +80,20 @@ class _MapScreenState extends State<MapScreen> {
                   optionsBuilder: (value) {
                     final text = value.text.toLowerCase();
                     if (text.isEmpty) return const Iterable<String>.empty();
-                    return PalestinianCities.values.where((city) => city.toLowerCase().startsWith(text));
+                    return PalestinianCities.values
+                        .where((city) => city.toLowerCase().startsWith(text));
                   },
                   onSelected: (city) {
                     search.text = city;
                     context.read<PropertyProvider>().load(location: city);
                   },
-                  fieldViewBuilder: (_, textController, focusNode, onSubmit) => TextField(
+                  fieldViewBuilder: (_, textController, focusNode, onSubmit) =>
+                      TextField(
                     controller: textController,
                     focusNode: focusNode,
-                    decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'Search city or property location'),
+                    decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search),
+                        hintText: 'Search city or property location'),
                   ),
                 ),
               ),
@@ -91,13 +104,20 @@ class _MapScreenState extends State<MapScreen> {
               bottom: 20,
               child: Container(
                 padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), boxShadow: StudyHubShadows.card),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: EduStayShadows.card),
                 child: Row(
                   children: [
-                    const Icon(Icons.location_pin, color: StudyHubColors.orange),
+                    const Icon(Icons.location_pin, color: EduStayColors.orange),
                     const SizedBox(width: 10),
-                    Expanded(child: Text('${markers.length} property locations visible')),
-                    const Text('Clusters ready', style: TextStyle(color: StudyHubColors.secondaryText, fontSize: 12)),
+                    Expanded(
+                        child: Text(
+                            '${markers.length} property locations visible')),
+                    const Text('Clusters ready',
+                        style: TextStyle(
+                            color: EduStayColors.secondaryText, fontSize: 12)),
                   ],
                 ),
               ),
@@ -123,19 +143,23 @@ class _MapsSetupFallback extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.map_outlined, color: StudyHubColors.darkGreen, size: 72),
+            const Icon(Icons.map_outlined,
+                color: EduStayColors.darkGreen, size: 72),
             const SizedBox(height: 18),
-            const Text('Google Maps setup required', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+            const Text('Google Maps setup required',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
             const SizedBox(height: 10),
             Text(
               '$markerCount property marker(s) are ready. Add real Android/iOS Google Maps API keys, then run with --dart-define=GOOGLE_MAPS_ENABLED=true.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: StudyHubColors.secondaryText),
+              style: const TextStyle(color: EduStayColors.secondaryText),
             ),
           ],
         ),
       ),
     );
-    return Scaffold(appBar: embedded ? null : AppBar(title: const Text('Map')), body: content);
+    return Scaffold(
+        appBar: embedded ? null : AppBar(title: const Text('Map')),
+        body: content);
   }
 }

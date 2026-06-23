@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/theme/studyhub_design.dart';
+import '../../core/theme/EduStay_design.dart';
 import '../../providers/chat_provider.dart';
 import 'chat_screen.dart';
 
@@ -25,7 +25,11 @@ class _InboxScreenState extends State<InboxScreen> {
 
   Future<void> _load() async {
     final response = await context.read<ChatProvider>().conversations();
-    if (mounted) setState(() { conversations = response; loading = false; });
+    if (mounted)
+      setState(() {
+        conversations = response;
+        loading = false;
+      });
   }
 
   @override
@@ -43,15 +47,32 @@ class _InboxScreenState extends State<InboxScreen> {
                     itemBuilder: (_, index) {
                       final item = conversations[index] as Map<String, dynamic>;
                       final name = item['name']?.toString() ?? 'User';
-                      final unread = int.tryParse('${item['unread_count'] ?? 0}') ?? 0;
+                      final unread =
+                          int.tryParse('${item['unread_count'] ?? 0}') ?? 0;
                       return ListTile(
                         tileColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        leading: CircleAvatar(backgroundColor: StudyHubColors.darkGreen, child: Text(name.substring(0, 1).toUpperCase(), style: const TextStyle(color: Colors.white))),
-                        title: Text(name, style: const TextStyle(fontWeight: FontWeight.w900)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                        leading: CircleAvatar(
+                            backgroundColor: EduStayColors.darkGreen,
+                            child: Text(name.substring(0, 1).toUpperCase(),
+                                style: const TextStyle(color: Colors.white))),
+                        title: Text(name,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w900)),
                         subtitle: Text(item['last_message']?.toString() ?? ''),
-                        trailing: unread > 0 ? CircleAvatar(radius: 11, backgroundColor: StudyHubColors.error, child: Text('$unread', style: const TextStyle(color: Colors.white, fontSize: 10))) : const Icon(Icons.chevron_right),
-                        onTap: () => Navigator.pushNamed(context, ChatScreen.route, arguments: item['user_id']).then((_) => _load()),
+                        trailing: unread > 0
+                            ? CircleAvatar(
+                                radius: 11,
+                                backgroundColor: EduStayColors.error,
+                                child: Text('$unread',
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 10)))
+                            : const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.pushNamed(
+                                context, ChatScreen.route,
+                                arguments: item['user_id'])
+                            .then((_) => _load()),
                       );
                     },
                     separatorBuilder: (_, __) => const SizedBox(height: 10),

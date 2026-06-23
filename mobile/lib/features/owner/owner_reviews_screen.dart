@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/theme/studyhub_design.dart';
+import '../../core/theme/EduStay_design.dart';
 import '../../repositories/admin_repository.dart';
 
 class OwnerReviewsScreen extends StatefulWidget {
@@ -26,7 +26,9 @@ class _OwnerReviewsScreenState extends State<OwnerReviewsScreen> {
     final response = await context.read<AdminRepository>().ownerReviews();
     final data = response['data'];
     setState(() {
-      reviews = data is Map && data['data'] is List ? data['data'] : data as List<dynamic>;
+      reviews = data is Map && data['data'] is List
+          ? data['data']
+          : data as List<dynamic>;
       loading = false;
     });
   }
@@ -43,25 +45,41 @@ class _OwnerReviewsScreenState extends State<OwnerReviewsScreen> {
                 final review = reviews[index];
                 return Container(
                   padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: StudyHubShadows.soft),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Row(children: [
-                      Text(review['property']?['title'] ?? 'Property', style: const TextStyle(fontWeight: FontWeight.w900)),
-                      const Spacer(),
-                      const Icon(Icons.star, color: StudyHubColors.orange, size: 17),
-                      Text('${review['rating']}'),
-                    ]),
-                    const SizedBox(height: 8),
-                    Text(review['comment'] ?? '', style: const TextStyle(color: StudyHubColors.secondaryText)),
-                    if (review['owner_reply'] != null) ...[
-                      const SizedBox(height: 8),
-                      Text('Reply: ${review['owner_reply']}', style: const TextStyle(fontWeight: FontWeight.w800)),
-                    ],
-                    Row(children: [
-                      TextButton(onPressed: () => _reply(review['id']), child: const Text('Reply')),
-                      TextButton(onPressed: () => _delete(review['id']), child: const Text('Delete')),
-                    ]),
-                  ]),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: EduStayShadows.soft),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(children: [
+                          Text(review['property']?['title'] ?? 'Property',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w900)),
+                          const Spacer(),
+                          const Icon(Icons.star,
+                              color: EduStayColors.orange, size: 17),
+                          Text('${review['rating']}'),
+                        ]),
+                        const SizedBox(height: 8),
+                        Text(review['comment'] ?? '',
+                            style: const TextStyle(
+                                color: EduStayColors.secondaryText)),
+                        if (review['owner_reply'] != null) ...[
+                          const SizedBox(height: 8),
+                          Text('Reply: ${review['owner_reply']}',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w800)),
+                        ],
+                        Row(children: [
+                          TextButton(
+                              onPressed: () => _reply(review['id']),
+                              child: const Text('Reply')),
+                          TextButton(
+                              onPressed: () => _delete(review['id']),
+                              child: const Text('Delete')),
+                        ]),
+                      ]),
                 );
               },
               separatorBuilder: (_, __) => const SizedBox(height: 12),
@@ -76,10 +94,17 @@ class _OwnerReviewsScreenState extends State<OwnerReviewsScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Reply to review'),
-        content: TextField(controller: controller, maxLines: 3, decoration: const InputDecoration(hintText: 'Write your reply')),
+        content: TextField(
+            controller: controller,
+            maxLines: 3,
+            decoration: const InputDecoration(hintText: 'Write your reply')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, controller.text), child: const Text('Reply')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Reply')),
         ],
       ),
     );
@@ -96,8 +121,12 @@ class _OwnerReviewsScreenState extends State<OwnerReviewsScreen> {
         title: const Text('Delete review?'),
         content: const Text('Use this only for inappropriate reviews.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete')),
         ],
       ),
     );

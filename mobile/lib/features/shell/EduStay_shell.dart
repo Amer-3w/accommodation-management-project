@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../core/theme/studyhub_design.dart';
+import '../../core/theme/EduStay_design.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../booking/bookings_dashboard_screen.dart';
@@ -16,17 +16,17 @@ import '../property/listings_screen.dart';
 import '../settings/settings_screen.dart';
 import '../support/help_support_screen.dart';
 
-class StudyHubShell extends StatefulWidget {
-  const StudyHubShell({super.key, this.initialIndex = 0});
+class EduStayShell extends StatefulWidget {
+  const EduStayShell({super.key, this.initialIndex = 0});
   static const route = '/app';
 
   final int initialIndex;
 
   @override
-  State<StudyHubShell> createState() => _StudyHubShellState();
+  State<EduStayShell> createState() => _EduStayShellState();
 }
 
-class _StudyHubShellState extends State<StudyHubShell> {
+class _EduStayShellState extends State<EduStayShell> {
   late int index = widget.initialIndex;
 
   final pages = const [
@@ -48,7 +48,7 @@ class _StudyHubShellState extends State<StudyHubShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: _StudyHubDrawer(onSelect: _handleDrawerRoute),
+      drawer: _EduStayDrawer(onSelect: _handleDrawerRoute),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 240),
         switchInCurve: Curves.easeOutCubic,
@@ -57,15 +57,30 @@ class _StudyHubShellState extends State<StudyHubShell> {
       bottomNavigationBar: NavigationBar(
         height: 70,
         backgroundColor: Colors.white,
-        indicatorColor: StudyHubColors.softGreen,
+        indicatorColor: EduStayColors.softGreen,
         selectedIndex: index,
         onDestinationSelected: (value) => setState(() => index = value),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.apartment_outlined), selectedIcon: Icon(Icons.apartment), label: 'Properties'),
-          NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map), label: 'Map'),
-          NavigationDestination(icon: Icon(Icons.calendar_month_outlined), selectedIcon: Icon(Icons.calendar_month), label: 'Bookings'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
+          NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: 'Home'),
+          NavigationDestination(
+              icon: Icon(Icons.apartment_outlined),
+              selectedIcon: Icon(Icons.apartment),
+              label: 'Properties'),
+          NavigationDestination(
+              icon: Icon(Icons.map_outlined),
+              selectedIcon: Icon(Icons.map),
+              label: 'Map'),
+          NavigationDestination(
+              icon: Icon(Icons.calendar_month_outlined),
+              selectedIcon: Icon(Icons.calendar_month),
+              label: 'Bookings'),
+          NavigationDestination(
+              icon: Icon(Icons.person_outline),
+              selectedIcon: Icon(Icons.person),
+              label: 'Profile'),
         ],
       ),
     );
@@ -111,7 +126,7 @@ class _StudyHubShellState extends State<StudyHubShell> {
       case 'about':
         showAboutDialog(
           context: context,
-          applicationName: 'StudyHub',
+          applicationName: 'EduStay',
           applicationVersion: '1.0.0',
           children: const [Text('Student accommodation platform.')],
         );
@@ -129,20 +144,24 @@ class _StudyHubShellState extends State<StudyHubShell> {
         _openExternal('https://www.linkedin.com');
         break;
       default:
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${route[0].toUpperCase()}${route.substring(1)} is ready for setup.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+                '${route[0].toUpperCase()}${route.substring(1)} is ready for setup.')));
     }
   }
 
   Future<void> _openExternal(String url) async {
     final uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication) && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open link.')));
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication) &&
+        mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Could not open link.')));
     }
   }
 }
 
-class _StudyHubDrawer extends StatelessWidget {
-  const _StudyHubDrawer({required this.onSelect});
+class _EduStayDrawer extends StatelessWidget {
+  const _EduStayDrawer({required this.onSelect});
 
   final ValueChanged<String> onSelect;
 
@@ -174,19 +193,35 @@ class _StudyHubDrawer extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
-              color: StudyHubColors.darkGreen,
+              color: EduStayColors.darkGreen,
               child: Row(
                 children: [
                   user?.profilePhotoUrl == null
-                      ? CircleAvatar(radius: 27, backgroundColor: StudyHubColors.orange, child: Text((user?.name ?? 'S').substring(0, 1).toUpperCase(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)))
-                      : CircleAvatar(radius: 27, backgroundImage: NetworkImage(user!.profilePhotoUrl!)),
+                      ? CircleAvatar(
+                          radius: 27,
+                          backgroundColor: EduStayColors.orange,
+                          child: Text(
+                              (user?.name ?? 'S').substring(0, 1).toUpperCase(),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900)))
+                      : CircleAvatar(
+                          radius: 27,
+                          backgroundImage:
+                              NetworkImage(user!.profilePhotoUrl!)),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(user?.name ?? 'StudyHub', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 17)),
-                        Text(user?.email ?? 'Student Services', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                        Text(user?.name ?? 'EduStay',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 17)),
+                        Text(user?.email ?? 'Student Services',
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 12)),
                       ],
                     ),
                   ),
@@ -203,22 +238,39 @@ class _StudyHubDrawer extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 children: [
                   ...items.map((item) => ListTile(
-                        leading: Icon(item.$2, color: StudyHubColors.darkGreen, size: StudyHubIconSizes.medium),
-                        title: Text(item.$3, style: const TextStyle(fontWeight: FontWeight.w700)),
-                        trailing: item.$1 == 'notifications' && unread > 0 ? CircleAvatar(radius: 10, backgroundColor: StudyHubColors.error, child: Text('$unread', style: const TextStyle(color: Colors.white, fontSize: 10))) : null,
+                        leading: Icon(item.$2,
+                            color: EduStayColors.darkGreen,
+                            size: EduStayIconSizes.medium),
+                        title: Text(item.$3,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w700)),
+                        trailing: item.$1 == 'notifications' && unread > 0
+                            ? CircleAvatar(
+                                radius: 10,
+                                backgroundColor: EduStayColors.error,
+                                child: Text('$unread',
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 10)))
+                            : null,
                         onTap: () => onSelect(item.$1),
                       )),
                   const Divider(),
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                    child: Text('Social Media', style: TextStyle(color: StudyHubColors.secondaryText, fontWeight: FontWeight.w800)),
+                    child: Text('Social Media',
+                        style: TextStyle(
+                            color: EduStayColors.secondaryText,
+                            fontWeight: FontWeight.w800)),
                   ),
                   ...[
                     ('facebook', Icons.facebook, 'Facebook'),
                     ('instagram', Icons.camera_alt_outlined, 'Instagram'),
                     ('whatsapp', Icons.call_outlined, 'WhatsApp'),
                     ('linkedin', Icons.business_center_outlined, 'LinkedIn'),
-                  ].map((item) => ListTile(leading: Icon(item.$2, color: StudyHubColors.darkGreen), title: Text(item.$3), onTap: () => onSelect(item.$1))),
+                  ].map((item) => ListTile(
+                      leading: Icon(item.$2, color: EduStayColors.darkGreen),
+                      title: Text(item.$3),
+                      onTap: () => onSelect(item.$1))),
                 ],
               ),
             ),
@@ -227,7 +279,9 @@ class _StudyHubDrawer extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () async {
                   await context.read<AuthProvider>().logout();
-                  if (context.mounted) Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+                  if (context.mounted)
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, '/login', (_) => false);
                 },
                 icon: const Icon(Icons.logout),
                 label: const Text('Logout'),

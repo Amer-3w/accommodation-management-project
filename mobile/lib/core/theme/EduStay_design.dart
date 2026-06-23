@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class StudyHubColors {
+class EduStayColors {
   static const darkGreen = Color(0xFF0C4A4A);
   static const orange = Color(0xFFF2A35B);
   static const success = Color(0xFF22C55E);
@@ -14,7 +14,7 @@ class StudyHubColors {
   static const softOrange = Color(0xFFFFF2E8);
 }
 
-class StudyHubSpacing {
+class EduStaySpacing {
   static const xs = 4.0;
   static const sm = 8.0;
   static const md = 12.0;
@@ -23,21 +23,21 @@ class StudyHubSpacing {
   static const xxl = 32.0;
 }
 
-class StudyHubRadii {
+class EduStayRadii {
   static const sm = 10.0;
   static const md = 14.0;
   static const lg = 18.0;
   static const xl = 28.0;
 }
 
-class StudyHubIconSizes {
+class EduStayIconSizes {
   static const small = 18.0;
   static const medium = 22.0;
   static const large = 28.0;
   static const xLarge = 44.0;
 }
 
-class StudyHubShadows {
+class EduStayShadows {
   static List<BoxShadow> card = [
     BoxShadow(
       color: Colors.black.withOpacity(0.05),
@@ -101,10 +101,10 @@ String passwordStrengthLabel(PasswordStrength strength) {
 Color passwordStrengthColor(PasswordStrength strength) {
   switch (strength) {
     case PasswordStrength.short:
-      return StudyHubColors.error;
+      return EduStayColors.error;
     case PasswordStrength.suitable:
-      return StudyHubColors.orange;
+      return EduStayColors.orange;
     case PasswordStrength.strong:
-      return StudyHubColors.success;
+      return EduStayColors.success;
   }
 }

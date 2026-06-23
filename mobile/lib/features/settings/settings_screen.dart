@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/theme/studyhub_design.dart';
+import '../../core/theme/EduStay_design.dart';
 import '../../providers/settings_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -39,13 +39,38 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           _Section(
-            title: settings.isArabic ? 'تفضيلات الإشعارات' : 'Notification Preferences',
+            title: settings.isArabic
+                ? 'تفضيلات الإشعارات'
+                : 'Notification Preferences',
             child: Column(children: [
-              _SwitchRow(label: settings.isArabic ? 'الحجوزات' : 'Booking notifications', value: settings.bookingNotifications, onChanged: (value) => settings.setPreference('booking', value)),
-              _SwitchRow(label: settings.isArabic ? 'المدفوعات' : 'Payment notifications', value: settings.paymentNotifications, onChanged: (value) => settings.setPreference('payment', value)),
-              _SwitchRow(label: settings.isArabic ? 'المحادثات' : 'Chat notifications', value: settings.chatNotifications, onChanged: (value) => settings.setPreference('chat', value)),
-              _SwitchRow(label: settings.isArabic ? 'العقارات' : 'Property notifications', value: settings.propertyNotifications, onChanged: (value) => settings.setPreference('property', value)),
-              _SwitchRow(label: settings.isArabic ? 'التقييمات' : 'Review notifications', value: settings.reviewNotifications, onChanged: (value) => settings.setPreference('review', value)),
+              _SwitchRow(
+                  label:
+                      settings.isArabic ? 'الحجوزات' : 'Booking notifications',
+                  value: settings.bookingNotifications,
+                  onChanged: (value) =>
+                      settings.setPreference('booking', value)),
+              _SwitchRow(
+                  label:
+                      settings.isArabic ? 'المدفوعات' : 'Payment notifications',
+                  value: settings.paymentNotifications,
+                  onChanged: (value) =>
+                      settings.setPreference('payment', value)),
+              _SwitchRow(
+                  label: settings.isArabic ? 'المحادثات' : 'Chat notifications',
+                  value: settings.chatNotifications,
+                  onChanged: (value) => settings.setPreference('chat', value)),
+              _SwitchRow(
+                  label:
+                      settings.isArabic ? 'العقارات' : 'Property notifications',
+                  value: settings.propertyNotifications,
+                  onChanged: (value) =>
+                      settings.setPreference('property', value)),
+              _SwitchRow(
+                  label:
+                      settings.isArabic ? 'التقييمات' : 'Review notifications',
+                  value: settings.reviewNotifications,
+                  onChanged: (value) =>
+                      settings.setPreference('review', value)),
             ]),
           ),
         ],
@@ -63,7 +88,10 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         margin: const EdgeInsets.only(bottom: 14),
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: StudyHubShadows.soft),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: EduStayShadows.soft),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
           const SizedBox(height: 12),
@@ -73,7 +101,8 @@ class _Section extends StatelessWidget {
 }
 
 class _SwitchRow extends StatelessWidget {
-  const _SwitchRow({required this.label, required this.value, required this.onChanged});
+  const _SwitchRow(
+      {required this.label, required this.value, required this.onChanged});
   final String label;
   final bool value;
   final ValueChanged<bool> onChanged;

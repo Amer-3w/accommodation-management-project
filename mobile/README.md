@@ -1,4 +1,4 @@
-# StudyHub Mobile
+# EduStay Mobile
 
 Flutter mobile application for student accommodation search, booking, payment, chat, and profile management.
 

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/favorite_provider.dart';
 import '../../providers/property_provider.dart';
-import '../../widgets/studyhub_components.dart';
+import '../../widgets/EduStay_components.dart';
 import '../search/search_screen.dart';
 import 'property_details_screen.dart';
 
@@ -36,7 +36,12 @@ class _ListingsScreenState extends State<ListingsScreen> {
           ? null
           : AppBar(
               title: const Text('Properties'),
-              actions: [IconButton(onPressed: () => Navigator.pushNamed(context, SearchScreen.route), icon: const Icon(Icons.tune))],
+              actions: [
+                IconButton(
+                    onPressed: () =>
+                        Navigator.pushNamed(context, SearchScreen.route),
+                    icon: const Icon(Icons.tune))
+              ],
             ),
       body: SafeArea(
         child: ListView(
@@ -44,12 +49,19 @@ class _ListingsScreenState extends State<ListingsScreen> {
           children: [
             if (widget.embedded)
               Row(children: [
-                const Expanded(child: Text('Properties', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900))),
-                IconButton(onPressed: () => Navigator.pushNamed(context, SearchScreen.route), icon: const Icon(Icons.tune)),
+                const Expanded(
+                    child: Text('Properties',
+                        style: TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.w900))),
+                IconButton(
+                    onPressed: () =>
+                        Navigator.pushNamed(context, SearchScreen.route),
+                    icon: const Icon(Icons.tune)),
               ]),
             Text('${provider.properties.length} properties found'),
             const SizedBox(height: 14),
-            if (provider.loading) const Center(child: CircularProgressIndicator()),
+            if (provider.loading)
+              const Center(child: CircularProgressIndicator()),
             ...provider.properties.asMap().entries.map((entry) => Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: FadeSlideIn(
@@ -57,8 +69,11 @@ class _ListingsScreenState extends State<ListingsScreen> {
                     child: FigmaPropertyCard(
                       property: entry.value,
                       favorite: favorites.ids.contains(entry.value.id),
-                      onFavorite: () => context.read<FavoriteProvider>().toggle(entry.value),
-                      onTap: () => Navigator.pushNamed(context, PropertyDetailsScreen.route, arguments: entry.value.id),
+                      onFavorite: () =>
+                          context.read<FavoriteProvider>().toggle(entry.value),
+                      onTap: () => Navigator.pushNamed(
+                          context, PropertyDetailsScreen.route,
+                          arguments: entry.value.id),
                     ),
                   ),
                 )),

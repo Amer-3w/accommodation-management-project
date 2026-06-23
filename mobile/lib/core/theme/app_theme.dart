@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'studyhub_design.dart';
+import 'EduStay_design.dart';
 
 class AppTheme {
-  static const primary = StudyHubColors.darkGreen;
-  static const ink = StudyHubColors.text;
-  static const muted = StudyHubColors.secondaryText;
-  static const surface = StudyHubColors.background;
-  static const accent = StudyHubColors.orange;
+  static const primary = EduStayColors.darkGreen;
+  static const ink = EduStayColors.text;
+  static const muted = EduStayColors.secondaryText;
+  static const surface = EduStayColors.background;
+  static const accent = EduStayColors.orange;
 
   static ThemeData get light {
     return ThemeData(
@@ -18,7 +18,7 @@ class AppTheme {
         primary: primary,
         secondary: accent,
         surface: Colors.white,
-        error: StudyHubColors.error,
+        error: EduStayColors.error,
       ),
       fontFamily: 'Roboto',
       appBarTheme: const AppBarTheme(
@@ -26,38 +26,43 @@ class AppTheme {
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: ink,
-        titleTextStyle: TextStyle(color: ink, fontSize: 18, fontWeight: FontWeight.w900),
+        titleTextStyle:
+            TextStyle(color: ink, fontSize: 18, fontWeight: FontWeight.w900),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFFF9FAFB),
-        hintStyle: const TextStyle(color: StudyHubColors.secondaryText, fontSize: 13),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+        hintStyle:
+            const TextStyle(color: EduStayColors.secondaryText, fontSize: 13),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(StudyHubRadii.md),
-          borderSide: const BorderSide(color: StudyHubColors.line),
+          borderRadius: BorderRadius.circular(EduStayRadii.md),
+          borderSide: const BorderSide(color: EduStayColors.line),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(StudyHubRadii.md),
-          borderSide: const BorderSide(color: StudyHubColors.line),
+          borderRadius: BorderRadius.circular(EduStayRadii.md),
+          borderSide: const BorderSide(color: EduStayColors.line),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(StudyHubRadii.md),
-          borderSide: const BorderSide(color: StudyHubColors.darkGreen, width: 1.5),
+          borderRadius: BorderRadius.circular(EduStayRadii.md),
+          borderSide:
+              const BorderSide(color: EduStayColors.darkGreen, width: 1.5),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           minimumSize: const Size.fromHeight(52),
-          backgroundColor: StudyHubColors.orange,
+          backgroundColor: EduStayColors.orange,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(StudyHubRadii.md)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(EduStayRadii.md)),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: const Color(0xFFF3F4F6),
-        selectedColor: StudyHubColors.darkGreen,
+        selectedColor: EduStayColors.darkGreen,
         labelStyle: const TextStyle(fontWeight: FontWeight.w700),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         side: BorderSide.none,
@@ -72,17 +77,18 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,
         brightness: Brightness.dark,
-        primary: StudyHubColors.orange,
-        secondary: StudyHubColors.darkGreen,
+        primary: EduStayColors.orange,
+        secondary: EduStayColors.darkGreen,
         surface: const Color(0xFF111827),
-        error: StudyHubColors.error,
+        error: EduStayColors.error,
       ),
       appBarTheme: const AppBarTheme(
         centerTitle: false,
         elevation: 0,
         backgroundColor: Color(0xFF111827),
         foregroundColor: Colors.white,
-        titleTextStyle: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900),
+        titleTextStyle: TextStyle(
+            color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900),
       ),
       cardColor: const Color(0xFF111827),
     );

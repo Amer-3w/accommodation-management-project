@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'onboarding_screen.dart';
 import '../owner/owner_dashboard_screen.dart';
-import '../shell/studyhub_shell.dart';
+import '../shell/EduStay_shell.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -31,7 +31,18 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacementNamed(context, OnboardingScreen.route);
       return;
     }
-    Navigator.pushReplacementNamed(context, auth.user?.role == 'owner' ? OwnerDashboardScreen.route : StudyHubShell.route);
+    final String targetRoute;
+    final String? userRole = auth.user?.role;
+
+    if (userRole == 'admin') {
+      targetRoute = '/admin-dashboard';
+    } else if (userRole == 'owner') {
+      targetRoute = OwnerDashboardScreen.route;
+    } else {
+      targetRoute = EduStayShell.route;
+    }
+
+    Navigator.pushReplacementNamed(context, targetRoute);
   }
 
   @override
@@ -43,7 +54,8 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             Icon(Icons.school, size: 78, color: Color(0xFF0C4A4A)),
             SizedBox(height: 16),
-            Text('StudyHub', style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900)),
+            Text('EduStay',
+                style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900)),
           ],
         ),
       ),

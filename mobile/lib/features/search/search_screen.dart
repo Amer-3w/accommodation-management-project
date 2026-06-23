@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/theme/studyhub_design.dart';
+import '../../core/theme/EduStay_design.dart';
 import '../../providers/property_provider.dart';
-import '../../widgets/studyhub_components.dart';
+import '../../widgets/EduStay_components.dart';
 import '../property/listings_screen.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -22,8 +22,20 @@ class _SearchScreenState extends State<SearchScreen> {
   double distance = 10;
   double rating = 0;
   bool availableOnly = false;
-  final types = {'Apartment': false, 'Studio': false, 'Shared Room': false, 'Dormitory': false};
-  final amenities = {'WiFi': true, 'Parking': false, 'Gym': false, 'Kitchen': false, 'Laundry': false, 'AC': false};
+  final types = {
+    'Apartment': false,
+    'Studio': false,
+    'Shared Room': false,
+    'Dormitory': false
+  };
+  final amenities = {
+    'WiFi': true,
+    'Parking': false,
+    'Gym': false,
+    'Kitchen': false,
+    'Laundry': false,
+    'AC': false
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +44,15 @@ class _SearchScreenState extends State<SearchScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(18, 18, 18, 96),
         children: [
-          const Text('Location', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+          const Text('Location',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
           Autocomplete<String>(
             optionsBuilder: (value) {
               final text = value.text.toLowerCase();
               if (text.isEmpty) return const Iterable<String>.empty();
-              return PalestinianCities.values.where((city) => city.toLowerCase().startsWith(text));
+              return PalestinianCities.values
+                  .where((city) => city.toLowerCase().startsWith(text));
             },
             onSelected: (city) => location.text = city,
             fieldViewBuilder: (_, controller, focusNode, onSubmit) {
@@ -47,46 +61,74 @@ class _SearchScreenState extends State<SearchScreen> {
                 controller: controller,
                 focusNode: focusNode,
                 onChanged: (value) => location.text = value,
-                decoration: const InputDecoration(prefixIcon: Icon(Icons.location_on_outlined), hintText: 'Enter city or area'),
+                decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.location_on_outlined),
+                    hintText: 'Enter city or area'),
               );
             },
           ),
           const SizedBox(height: 18),
-          const Text('Price Range (\$/month)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+          const Text('Price Range (\$/month)',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
           Row(children: [
-            Expanded(child: TextField(controller: minPrice, keyboardType: TextInputType.number, decoration: const InputDecoration(prefixIcon: Icon(Icons.attach_money), hintText: 'Min'))),
+            Expanded(
+                child: TextField(
+                    controller: minPrice,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.attach_money),
+                        hintText: 'Min'))),
             const SizedBox(width: 12),
-            Expanded(child: TextField(controller: maxPrice, keyboardType: TextInputType.number, decoration: const InputDecoration(prefixIcon: Icon(Icons.attach_money), hintText: 'Max'))),
+            Expanded(
+                child: TextField(
+                    controller: maxPrice,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.attach_money),
+                        hintText: 'Max'))),
           ]),
           const SizedBox(height: 18),
-          const Text('Number of Rooms', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+          const Text('Number of Rooms',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 9,
             runSpacing: 9,
             children: [null, 1, 2, 3, 4, 5].map((room) {
-              final label = room == null ? 'Any' : room == 5 ? '5+' : '$room';
+              final label = room == null
+                  ? 'Any'
+                  : room == 5
+                      ? '5+'
+                      : '$room';
               final selected = rooms == room;
-              return _FilterBox(label: label, selected: selected, onTap: () => setState(() => rooms = room));
+              return _FilterBox(
+                  label: label,
+                  selected: selected,
+                  onTap: () => setState(() => rooms = room));
             }).toList(),
           ),
           const SizedBox(height: 20),
-          const Text('Property Type', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+          const Text('Property Type',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
           ...types.keys.map((type) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: CheckboxListTile(
                   value: types[type],
-                  onChanged: (value) => setState(() => types[type] = value ?? false),
-                  title: Text(type, style: const TextStyle(fontWeight: FontWeight.w800)),
+                  onChanged: (value) =>
+                      setState(() => types[type] = value ?? false),
+                  title: Text(type,
+                      style: const TextStyle(fontWeight: FontWeight.w800)),
                   tileColor: const Color(0xFFF7F8FA),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
                   controlAffinity: ListTileControlAffinity.leading,
                 ),
               )),
           const SizedBox(height: 8),
-          const Text('Amenities', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+          const Text('Amenities',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -97,26 +139,39 @@ class _SearchScreenState extends State<SearchScreen> {
                 selected: selected,
                 label: Text(amenity),
                 avatar: Icon(_amenityIcon(amenity), size: 15),
-                onSelected: (value) => setState(() => amenities[amenity] = value),
+                onSelected: (value) =>
+                    setState(() => amenities[amenity] = value),
               );
             }).toList(),
           ),
           const SizedBox(height: 18),
-          Text('Distance: ${distance.toStringAsFixed(0)} km', style: const TextStyle(fontWeight: FontWeight.w800)),
-          Slider(value: distance, min: 1, max: 50, onChanged: (value) => setState(() => distance = value)),
-          Text('Minimum rating: ${rating.toStringAsFixed(1)}', style: const TextStyle(fontWeight: FontWeight.w800)),
-          Slider(value: rating, min: 0, max: 5, divisions: 10, onChanged: (value) => setState(() => rating = value)),
+          Text('Distance: ${distance.toStringAsFixed(0)} km',
+              style: const TextStyle(fontWeight: FontWeight.w800)),
+          Slider(
+              value: distance,
+              min: 1,
+              max: 50,
+              onChanged: (value) => setState(() => distance = value)),
+          Text('Minimum rating: ${rating.toStringAsFixed(1)}',
+              style: const TextStyle(fontWeight: FontWeight.w800)),
+          Slider(
+              value: rating,
+              min: 0,
+              max: 5,
+              divisions: 10,
+              onChanged: (value) => setState(() => rating = value)),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: availableOnly,
             onChanged: (value) => setState(() => availableOnly = value),
-            title: const Text('Available only', style: TextStyle(fontWeight: FontWeight.w800)),
+            title: const Text('Available only',
+                style: TextStyle(fontWeight: FontWeight.w800)),
           ),
         ],
       ),
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.all(18),
-        child: StudyHubPrimaryButton(
+        child: EduStayPrimaryButton(
           label: 'Apply Filters',
           onPressed: () async {
             await context.read<PropertyProvider>().load(
@@ -125,12 +180,16 @@ class _SearchScreenState extends State<SearchScreen> {
                   minPrice: double.tryParse(minPrice.text),
                   maxPrice: double.tryParse(maxPrice.text),
                   propertyType: _selectedPropertyType(),
-                  amenities: amenities.entries.where((e) => e.value).map((e) => e.key).toList(),
+                  amenities: amenities.entries
+                      .where((e) => e.value)
+                      .map((e) => e.key)
+                      .toList(),
                   availableOnly: availableOnly,
                   rating: rating,
                   distance: distance,
                 );
-            if (context.mounted) Navigator.pushReplacementNamed(context, ListingsScreen.route);
+            if (context.mounted)
+              Navigator.pushReplacementNamed(context, ListingsScreen.route);
           },
         ),
       ),
@@ -155,13 +214,17 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   String? _selectedPropertyType() {
-    final selected = types.entries.where((entry) => entry.value).map((entry) => entry.key).toList();
+    final selected = types.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key)
+        .toList();
     return selected.isEmpty ? null : selected.first;
   }
 }
 
 class _FilterBox extends StatelessWidget {
-  const _FilterBox({required this.label, required this.selected, required this.onTap});
+  const _FilterBox(
+      {required this.label, required this.selected, required this.onTap});
   final String label;
   final bool selected;
   final VoidCallback onTap;
@@ -176,11 +239,16 @@ class _FilterBox extends StatelessWidget {
         width: 72,
         height: 44,
         decoration: BoxDecoration(
-          color: selected ? StudyHubColors.darkGreen : Colors.white,
+          color: selected ? EduStayColors.darkGreen : Colors.white,
           borderRadius: BorderRadius.circular(13),
-          border: Border.all(color: selected ? StudyHubColors.darkGreen : StudyHubColors.line),
+          border: Border.all(
+              color: selected ? EduStayColors.darkGreen : EduStayColors.line),
         ),
-        child: Center(child: Text(label, style: TextStyle(color: selected ? Colors.white : StudyHubColors.text, fontWeight: FontWeight.w900))),
+        child: Center(
+            child: Text(label,
+                style: TextStyle(
+                    color: selected ? Colors.white : EduStayColors.text,
+                    fontWeight: FontWeight.w900))),
       ),
     );
   }

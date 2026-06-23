@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/theme/studyhub_design.dart';
+import '../../core/theme/EduStay_design.dart';
 import '../../providers/booking_provider.dart';
-import '../../widgets/studyhub_components.dart';
+import '../../widgets/EduStay_components.dart';
 import '../payment/payment_history_screen.dart';
 import 'booking_screen.dart';
 import 'edit_booking_screen.dart';
@@ -15,7 +15,8 @@ class BookingsDashboardScreen extends StatefulWidget {
   final bool embedded;
 
   @override
-  State<BookingsDashboardScreen> createState() => _BookingsDashboardScreenState();
+  State<BookingsDashboardScreen> createState() =>
+      _BookingsDashboardScreenState();
 }
 
 class _BookingsDashboardScreenState extends State<BookingsDashboardScreen> {
@@ -24,19 +25,29 @@ class _BookingsDashboardScreenState extends State<BookingsDashboardScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<BookingProvider>().loadMine());
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => context.read<BookingProvider>().loadMine());
   }
 
   @override
   Widget build(BuildContext context) {
     final bookings = context.watch<BookingProvider>().bookings;
-    final filtered = filter == 'All' ? bookings : bookings.where((item) => item.status.toLowerCase() == filter.toLowerCase()).toList();
+    final filtered = filter == 'All'
+        ? bookings
+        : bookings
+            .where((item) => item.status.toLowerCase() == filter.toLowerCase())
+            .toList();
     return Scaffold(
       appBar: widget.embedded
           ? null
           : AppBar(
               title: const Text('My Dashboard'),
-              actions: [IconButton(onPressed: () => Navigator.pushNamed(context, BookingScreen.route), icon: const Icon(Icons.add))],
+              actions: [
+                IconButton(
+                    onPressed: () =>
+                        Navigator.pushNamed(context, BookingScreen.route),
+                    icon: const Icon(Icons.add))
+              ],
             ),
       body: SafeArea(
         child: ListView(
@@ -45,13 +56,26 @@ class _BookingsDashboardScreenState extends State<BookingsDashboardScreen> {
             if (widget.embedded)
               const Padding(
                 padding: EdgeInsets.only(bottom: 18),
-                child: Text('My Dashboard', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                child: Text('My Dashboard',
+                    style:
+                        TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
               ),
             Row(
               children: [
-                Expanded(child: _MetricCard(icon: Icons.calendar_month_outlined, value: '${bookings.length}', label: 'Total Bookings', color: StudyHubColors.darkGreen)),
+                Expanded(
+                    child: _MetricCard(
+                        icon: Icons.calendar_month_outlined,
+                        value: '${bookings.length}',
+                        label: 'Total Bookings',
+                        color: EduStayColors.darkGreen)),
                 const SizedBox(width: 12),
-                Expanded(child: _MetricCard(icon: Icons.check_circle_outline, value: '${bookings.where((b) => b.status == 'approved').length}', label: 'Active Bookings', color: StudyHubColors.orange)),
+                Expanded(
+                    child: _MetricCard(
+                        icon: Icons.check_circle_outline,
+                        value:
+                            '${bookings.where((b) => b.status == 'approved').length}',
+                        label: 'Active Bookings',
+                        color: EduStayColors.orange)),
               ],
             ),
             const SizedBox(height: 18),
@@ -59,7 +83,14 @@ class _BookingsDashboardScreenState extends State<BookingsDashboardScreen> {
               height: 38,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children: ['All', 'Pending', 'Approved', 'Rejected', 'Cancelled', 'Completed'].map((status) {
+                children: [
+                  'All',
+                  'Pending',
+                  'Approved',
+                  'Rejected',
+                  'Cancelled',
+                  'Completed'
+                ].map((status) {
                   final selected = filter == status;
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
@@ -67,20 +98,25 @@ class _BookingsDashboardScreenState extends State<BookingsDashboardScreen> {
                       selected: selected,
                       label: Text(status),
                       onSelected: (_) => setState(() => filter = status),
-                      selectedColor: StudyHubColors.darkGreen,
-                      labelStyle: TextStyle(color: selected ? Colors.white : StudyHubColors.text, fontWeight: FontWeight.w800),
+                      selectedColor: EduStayColors.darkGreen,
+                      labelStyle: TextStyle(
+                          color: selected ? Colors.white : EduStayColors.text,
+                          fontWeight: FontWeight.w800),
                     ),
                   );
                 }).toList(),
               ),
             ),
             const SizedBox(height: 16),
-            const Text('My Bookings', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+            const Text('My Bookings',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
             const SizedBox(height: 12),
             if (filtered.isEmpty)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 28),
-                child: Center(child: Text('No bookings yet.', style: TextStyle(color: StudyHubColors.secondaryText))),
+                child: Center(
+                    child: Text('No bookings yet.',
+                        style: TextStyle(color: EduStayColors.secondaryText))),
               ),
             ...filtered.asMap().entries.map((entry) {
               final booking = entry.value;
@@ -89,33 +125,79 @@ class _BookingsDashboardScreenState extends State<BookingsDashboardScreen> {
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: StudyHubShadows.soft),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: EduStayShadows.soft),
                   child: Row(
                     children: [
-                      Container(width: 74, height: 74, decoration: BoxDecoration(color: StudyHubColors.line, borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.apartment, color: StudyHubColors.darkGreen)),
+                      Container(
+                          width: 74,
+                          height: 74,
+                          decoration: BoxDecoration(
+                              color: EduStayColors.line,
+                              borderRadius: BorderRadius.circular(12)),
+                          child: const Icon(Icons.apartment,
+                              color: EduStayColors.darkGreen)),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(booking.propertyTitle ?? 'Property #${booking.propertyId}', style: const TextStyle(fontWeight: FontWeight.w900)),
+                            Text(
+                                booking.propertyTitle ??
+                                    'Property #${booking.propertyId}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w900)),
                             if ((booking.propertyLocation ?? '').isNotEmpty)
-                              Text(booking.propertyLocation!, style: const TextStyle(color: StudyHubColors.secondaryText, fontSize: 12)),
+                              Text(booking.propertyLocation!,
+                                  style: const TextStyle(
+                                      color: EduStayColors.secondaryText,
+                                      fontSize: 12)),
                             const SizedBox(height: 5),
-                            Text('${booking.dateFrom.toString().substring(0, 10)} to ${booking.dateTo.toString().substring(0, 10)}', style: const TextStyle(color: StudyHubColors.secondaryText, fontSize: 12)),
+                            Text(
+                                '${booking.dateFrom.toString().substring(0, 10)} to ${booking.dateTo.toString().substring(0, 10)}',
+                                style: const TextStyle(
+                                    color: EduStayColors.secondaryText,
+                                    fontSize: 12)),
                             const SizedBox(height: 7),
                             Row(children: [
-                              Text(booking.propertyPrice == null ? 'Price unavailable' : '\$${booking.propertyPrice!.toStringAsFixed(0)}/mo', style: const TextStyle(fontWeight: FontWeight.w900, color: StudyHubColors.darkGreen)),
+                              Text(
+                                  booking.propertyPrice == null
+                                      ? 'Price unavailable'
+                                      : '\$${booking.propertyPrice!.toStringAsFixed(0)}/mo',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      color: EduStayColors.darkGreen)),
                               const Spacer(),
                               _StatusPill(status: booking.status),
                             ]),
-                            if (['pending', 'rejected', 'cancelled'].contains(booking.status)) ...[
+                            if (['pending', 'rejected', 'cancelled']
+                                .contains(booking.status)) ...[
                               const SizedBox(height: 8),
                               Row(
                                 children: [
-                                  TextButton(onPressed: () => Navigator.pushNamed(context, EditBookingScreen.route, arguments: booking), child: const Text('Edit')),
-                                  TextButton(onPressed: () => _confirm(context, 'Cancel booking?', () => context.read<BookingProvider>().cancelBooking(booking.id)), child: const Text('Cancel')),
-                                  TextButton(onPressed: () => _confirm(context, 'Delete booking?', () => context.read<BookingProvider>().deleteBooking(booking.id)), child: const Text('Delete')),
+                                  TextButton(
+                                      onPressed: () => Navigator.pushNamed(
+                                          context, EditBookingScreen.route,
+                                          arguments: booking),
+                                      child: const Text('Edit')),
+                                  TextButton(
+                                      onPressed: () => _confirm(
+                                          context,
+                                          'Cancel booking?',
+                                          () => context
+                                              .read<BookingProvider>()
+                                              .cancelBooking(booking.id)),
+                                      child: const Text('Cancel')),
+                                  TextButton(
+                                      onPressed: () => _confirm(
+                                          context,
+                                          'Delete booking?',
+                                          () => context
+                                              .read<BookingProvider>()
+                                              .deleteBooking(booking.id)),
+                                      child: const Text('Delete')),
                                 ],
                               ),
                             ],
@@ -128,13 +210,24 @@ class _BookingsDashboardScreenState extends State<BookingsDashboardScreen> {
               );
             }),
             const SizedBox(height: 6),
-            const Text('Quick Actions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+            const Text('Quick Actions',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
             const SizedBox(height: 10),
             Row(
               children: [
-                Expanded(child: _ActionCard(icon: Icons.add_box_outlined, label: 'New Booking', onTap: () => Navigator.pushNamed(context, BookingScreen.route))),
+                Expanded(
+                    child: _ActionCard(
+                        icon: Icons.add_box_outlined,
+                        label: 'New Booking',
+                        onTap: () =>
+                            Navigator.pushNamed(context, BookingScreen.route))),
                 const SizedBox(width: 12),
-                Expanded(child: _ActionCard(icon: Icons.receipt_long_outlined, label: 'Payments', onTap: () => Navigator.pushNamed(context, PaymentHistoryScreen.route))),
+                Expanded(
+                    child: _ActionCard(
+                        icon: Icons.receipt_long_outlined,
+                        label: 'Payments',
+                        onTap: () => Navigator.pushNamed(
+                            context, PaymentHistoryScreen.route))),
               ],
             ),
           ],
@@ -143,15 +236,20 @@ class _BookingsDashboardScreenState extends State<BookingsDashboardScreen> {
     );
   }
 
-  Future<void> _confirm(BuildContext context, String title, Future<void> Function() action) async {
+  Future<void> _confirm(BuildContext context, String title,
+      Future<void> Function() action) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: Text(title),
         content: const Text('This action will update your booking.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('No')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Yes')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('No')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Yes')),
         ],
       ),
     );
@@ -160,7 +258,11 @@ class _BookingsDashboardScreenState extends State<BookingsDashboardScreen> {
 }
 
 class _MetricCard extends StatelessWidget {
-  const _MetricCard({required this.icon, required this.value, required this.label, required this.color});
+  const _MetricCard(
+      {required this.icon,
+      required this.value,
+      required this.label,
+      required this.color});
   final IconData icon;
   final String value;
   final String label;
@@ -171,11 +273,16 @@ class _MetricCard extends StatelessWidget {
     return Container(
       height: 112,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(14)),
+      decoration:
+          BoxDecoration(color: color, borderRadius: BorderRadius.circular(14)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(icon, color: Colors.white, size: 28),
         const Spacer(),
-        Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24)),
+        Text(value,
+            style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+                fontSize: 24)),
         Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
       ]),
     );
@@ -189,20 +296,25 @@ class _StatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = switch (status) {
-      'cancelled' => StudyHubColors.error,
-      'pending' => StudyHubColors.orange,
-      _ => StudyHubColors.success,
+      'cancelled' => EduStayColors.error,
+      'pending' => EduStayColors.orange,
+      _ => EduStayColors.success,
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(.12), borderRadius: BorderRadius.circular(12)),
-      child: Text(status, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w800)),
+      decoration: BoxDecoration(
+          color: color.withOpacity(.12),
+          borderRadius: BorderRadius.circular(12)),
+      child: Text(status,
+          style: TextStyle(
+              color: color, fontSize: 11, fontWeight: FontWeight.w800)),
     );
   }
 }
 
 class _ActionCard extends StatelessWidget {
-  const _ActionCard({required this.icon, required this.label, required this.onTap});
+  const _ActionCard(
+      {required this.icon, required this.label, required this.onTap});
   final IconData icon;
   final String label;
   final VoidCallback onTap;
@@ -214,9 +326,14 @@ class _ActionCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Ink(
         height: 96,
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: StudyHubShadows.soft),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: EduStayShadows.soft),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          CircleAvatar(backgroundColor: StudyHubColors.softOrange, child: Icon(icon, color: StudyHubColors.orange)),
+          CircleAvatar(
+              backgroundColor: EduStayColors.softOrange,
+              child: Icon(icon, color: EduStayColors.orange)),
           const SizedBox(height: 8),
           Text(label, style: const TextStyle(fontWeight: FontWeight.w800)),
         ]),

@@ -1,18 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-
-import '../core/theme/studyhub_design.dart';
+import '../core/theme/EduStay_design.dart';
 import '../models/property.dart';
 
-class StudyHubIconButton extends StatelessWidget {
-  const StudyHubIconButton({
+class EduStayIconButton extends StatelessWidget {
+  const EduStayIconButton({
     required this.icon,
     required this.onPressed,
     this.badge,
     this.selected = false,
     super.key,
   });
-
   final IconData icon;
   final VoidCallback? onPressed;
   final int? badge;
@@ -28,14 +26,17 @@ class StudyHubIconButton extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: selected ? StudyHubColors.darkGreen : Colors.white.withOpacity(0.92),
+            color: selected
+                ? EduStayColors.darkGreen
+                : Colors.white.withOpacity(0.92),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: selected ? StudyHubColors.darkGreen : StudyHubColors.line),
+            border: Border.all(
+                color: selected ? EduStayColors.darkGreen : EduStayColors.line),
           ),
           child: IconButton(
             visualDensity: VisualDensity.compact,
-            iconSize: StudyHubIconSizes.medium,
-            color: selected ? Colors.white : StudyHubColors.darkGreen,
+            iconSize: EduStayIconSizes.medium,
+            color: selected ? Colors.white : EduStayColors.darkGreen,
             onPressed: onPressed,
             icon: Icon(icon),
           ),
@@ -47,11 +48,18 @@ class StudyHubIconButton extends StatelessWidget {
             child: TweenAnimationBuilder<double>(
               tween: Tween(begin: 0.7, end: 1),
               duration: const Duration(milliseconds: 260),
-              builder: (_, scale, child) => Transform.scale(scale: scale, child: child),
+              builder: (_, scale, child) =>
+                  Transform.scale(scale: scale, child: child),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                decoration: BoxDecoration(color: StudyHubColors.error, borderRadius: BorderRadius.circular(10)),
-                child: Text('$badge', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
+                decoration: BoxDecoration(
+                    color: EduStayColors.error,
+                    borderRadius: BorderRadius.circular(10)),
+                child: Text('$badge',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800)),
               ),
             ),
           ),
@@ -60,25 +68,24 @@ class StudyHubIconButton extends StatelessWidget {
   }
 }
 
-class StudyHubPrimaryButton extends StatefulWidget {
-  const StudyHubPrimaryButton({
+class EduStayPrimaryButton extends StatefulWidget {
+  const EduStayPrimaryButton({
     required this.label,
     required this.onPressed,
-    this.color = StudyHubColors.orange,
+    this.color = EduStayColors.orange,
     this.loading = false,
     super.key,
   });
-
   final String label;
   final VoidCallback? onPressed;
   final Color color;
   final bool loading;
 
   @override
-  State<StudyHubPrimaryButton> createState() => _StudyHubPrimaryButtonState();
+  State<EduStayPrimaryButton> createState() => _EduStayPrimaryButtonState();
 }
 
-class _StudyHubPrimaryButtonState extends State<StudyHubPrimaryButton> {
+class _EduStayPrimaryButtonState extends State<EduStayPrimaryButton> {
   bool pressed = false;
 
   @override
@@ -94,9 +101,9 @@ class _StudyHubPrimaryButtonState extends State<StudyHubPrimaryButton> {
           duration: const Duration(milliseconds: 180),
           height: 54,
           decoration: BoxDecoration(
-            color: widget.onPressed == null ? StudyHubColors.line : widget.color,
+            color: widget.onPressed == null ? EduStayColors.line : widget.color,
             borderRadius: BorderRadius.circular(14),
-            boxShadow: pressed ? [] : StudyHubShadows.soft,
+            boxShadow: pressed ? [] : EduStayShadows.soft,
           ),
           child: Material(
             color: Colors.transparent,
@@ -105,8 +112,14 @@ class _StudyHubPrimaryButtonState extends State<StudyHubPrimaryButton> {
               onTap: widget.loading ? null : widget.onPressed,
               child: Center(
                 child: widget.loading
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : Text(widget.label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white))
+                    : Text(widget.label,
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.w900)),
               ),
             ),
           ),
@@ -116,8 +129,8 @@ class _StudyHubPrimaryButtonState extends State<StudyHubPrimaryButton> {
   }
 }
 
-class StudyHubTextField extends StatelessWidget {
-  const StudyHubTextField({
+class EduStayTextField extends StatelessWidget {
+  const EduStayTextField({
     required this.controller,
     required this.label,
     this.hint,
@@ -131,7 +144,6 @@ class StudyHubTextField extends StatelessWidget {
     this.readOnly = false,
     super.key,
   });
-
   final TextEditingController controller;
   final String label;
   final String? hint;
@@ -149,7 +161,11 @@ class StudyHubTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: StudyHubColors.text)),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: EduStayColors.text)),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
@@ -161,7 +177,8 @@ class StudyHubTextField extends StatelessWidget {
           readOnly: readOnly,
           decoration: InputDecoration(
             hintText: hint,
-            prefixIcon: icon == null ? null : Icon(icon, size: StudyHubIconSizes.small),
+            prefixIcon:
+                icon == null ? null : Icon(icon, size: EduStayIconSizes.small),
             suffixIcon: suffix,
           ),
         ),
@@ -171,8 +188,8 @@ class StudyHubTextField extends StatelessWidget {
 }
 
 class FadeSlideIn extends StatelessWidget {
-  const FadeSlideIn({required this.child, this.delay = Duration.zero, super.key});
-
+  const FadeSlideIn(
+      {required this.child, this.delay = Duration.zero, super.key});
   final Widget child;
   final Duration delay;
 
@@ -184,7 +201,8 @@ class FadeSlideIn extends StatelessWidget {
       curve: Curves.easeOutCubic,
       builder: (_, value, child) => Opacity(
         opacity: value.clamp(0, 1),
-        child: Transform.translate(offset: Offset(0, (1 - value) * 18), child: child),
+        child: Transform.translate(
+            offset: Offset(0, (1 - value) * 18), child: child),
       ),
       child: child,
     );
@@ -192,8 +210,12 @@ class FadeSlideIn extends StatelessWidget {
 }
 
 class FigmaPropertyCard extends StatefulWidget {
-  const FigmaPropertyCard({required this.property, required this.onTap, this.onFavorite, this.favorite = false, super.key});
-
+  const FigmaPropertyCard(
+      {required this.property,
+      required this.onTap,
+      this.onFavorite,
+      this.favorite = false,
+      super.key});
   final Property property;
   final VoidCallback onTap;
   final VoidCallback? onFavorite;
@@ -208,7 +230,8 @@ class _FigmaPropertyCardState extends State<FigmaPropertyCard> {
 
   @override
   Widget build(BuildContext context) {
-    final image = widget.property.images.isNotEmpty ? widget.property.images.first : null;
+    final image =
+        widget.property.images.isNotEmpty ? widget.property.images.first : null;
     return GestureDetector(
       onTapDown: (_) => setState(() => down = true),
       onTapCancel: () => setState(() => down = false),
@@ -221,9 +244,9 @@ class _FigmaPropertyCardState extends State<FigmaPropertyCard> {
           borderRadius: BorderRadius.circular(14),
           child: Ink(
             decoration: BoxDecoration(
-              color: StudyHubColors.card,
+              color: EduStayColors.card,
               borderRadius: BorderRadius.circular(14),
-              boxShadow: StudyHubShadows.card,
+              boxShadow: EduStayShadows.card,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,10 +254,30 @@ class _FigmaPropertyCardState extends State<FigmaPropertyCard> {
                 Stack(
                   children: [
                     ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-                      child: image == null
-                          ? Container(height: 162, color: const Color(0xFFEDEDED), child: const Center(child: Icon(Icons.apartment, size: 52)))
-                          : CachedNetworkImage(imageUrl: image, height: 162, width: double.infinity, fit: BoxFit.cover),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(14)),
+                      child: image == null || image.isEmpty
+                          ? Container(
+                              height: 162,
+                              color: const Color(0xFFEDEDED),
+                              child: const Center(
+                                  child: Icon(Icons.apartment, size: 52)))
+                          : Image.network(
+                              image,
+                              height: 162,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  height: 162,
+                                  color: const Color(0xFFEDEDED),
+                                  child: const Center(
+                                    child: Icon(Icons.home_work_outlined,
+                                        size: 52, color: Colors.grey),
+                                  ),
+                                );
+                              },
+                            ),
                     ),
                     Positioned(
                       right: 10,
@@ -247,7 +290,14 @@ class _FigmaPropertyCardState extends State<FigmaPropertyCard> {
                           child: CircleAvatar(
                             radius: 18,
                             backgroundColor: Colors.white,
-                            child: Icon(widget.favorite ? Icons.favorite : Icons.favorite_border, color: widget.favorite ? StudyHubColors.error : StudyHubColors.darkGreen, size: 20),
+                            child: Icon(
+                                widget.favorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: widget.favorite
+                                    ? EduStayColors.error
+                                    : EduStayColors.darkGreen,
+                                size: 20),
                           ),
                         ),
                       ),
@@ -261,27 +311,53 @@ class _FigmaPropertyCardState extends State<FigmaPropertyCard> {
                     children: [
                       Row(
                         children: [
-                          Expanded(child: Text(widget.property.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14))),
-                          const Icon(Icons.star, color: StudyHubColors.orange, size: 16),
-                          Text(widget.property.rating.toStringAsFixed(1), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                          Expanded(
+                              child: Text(widget.property.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 14))),
+                          const Icon(Icons.star,
+                              color: EduStayColors.orange, size: 16),
+                          Text(widget.property.rating.toStringAsFixed(1),
+                              style: const TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.w700)),
                         ],
                       ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.location_on_outlined, size: 15, color: StudyHubColors.secondaryText),
+                          const Icon(Icons.location_on_outlined,
+                              size: 15, color: EduStayColors.secondaryText),
                           const SizedBox(width: 3),
-                          Expanded(child: Text(widget.property.location, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, color: StudyHubColors.secondaryText))),
+                          Expanded(
+                              child: Text(widget.property.location,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      color: EduStayColors.secondaryText))),
                         ],
                       ),
                       const SizedBox(height: 11),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('\$${widget.property.price.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: StudyHubColors.darkGreen)),
-                          const Text('/month', style: TextStyle(color: StudyHubColors.secondaryText, fontSize: 12)),
+                          Text('\$${widget.property.price.toStringAsFixed(0)}',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 18,
+                                  color: EduStayColors.darkGreen)),
+                          const Text('/month',
+                              style: TextStyle(
+                                  color: EduStayColors.secondaryText,
+                                  fontSize: 12)),
                           const Spacer(),
-                          Text('(${widget.property.reviewCount} reviews)', style: const TextStyle(color: StudyHubColors.secondaryText, fontSize: 10)),
+                          Text('(${widget.property.reviewCount} reviews)',
+                              style: const TextStyle(
+                                  color: EduStayColors.secondaryText,
+                                  fontSize: 10)),
                         ],
                       ),
                     ],

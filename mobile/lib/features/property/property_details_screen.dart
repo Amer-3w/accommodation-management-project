@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../core/theme/studyhub_design.dart';
+import '../../core/theme/EduStay_design.dart';
 import '../../providers/favorite_provider.dart';
 import '../../providers/property_provider.dart';
-import '../../widgets/studyhub_components.dart';
+import '../../widgets/EduStay_components.dart';
 import '../booking/booking_screen.dart';
 import '../chat/chat_screen.dart';
 import '../owner/owner_profile_screen.dart';
@@ -52,21 +52,46 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     SizedBox(
                       height: 286,
                       child: PageView(
-                        onPageChanged: (value) => setState(() => imageIndex = value),
+                        onPageChanged: (value) =>
+                            setState(() => imageIndex = value),
                         children: images.isEmpty
-                            ? [Container(color: StudyHubColors.line, child: const Center(child: Icon(Icons.apartment, size: 70)))]
-                            : images.map((url) => CachedNetworkImage(imageUrl: url, width: double.infinity, fit: BoxFit.cover)).toList(),
+                            ? [
+                                Container(
+                                    color: EduStayColors.line,
+                                    child: const Center(
+                                        child: Icon(Icons.apartment, size: 70)))
+                              ]
+                            : images
+                                .map((url) => CachedNetworkImage(
+                                    imageUrl: url,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover))
+                                .toList(),
                       ),
                     ),
-                    Positioned(top: 46, left: 16, child: _RoundAction(icon: Icons.arrow_back, onTap: () => Navigator.pop(context))),
-                    Positioned(top: 46, right: 64, child: _RoundAction(icon: Icons.share_outlined, onTap: () {})),
+                    Positioned(
+                        top: 46,
+                        left: 16,
+                        child: _RoundAction(
+                            icon: Icons.arrow_back,
+                            onTap: () => Navigator.pop(context))),
+                    Positioned(
+                        top: 46,
+                        right: 64,
+                        child: _RoundAction(
+                            icon: Icons.share_outlined, onTap: () {})),
                     Positioned(
                       top: 46,
                       right: 16,
                       child: _RoundAction(
-                        icon: favorites.ids.contains(property.id) ? Icons.favorite : Icons.favorite_border,
-                        color: favorites.ids.contains(property.id) ? StudyHubColors.error : StudyHubColors.darkGreen,
-                        onTap: () => context.read<FavoriteProvider>().toggle(property),
+                        icon: favorites.ids.contains(property.id)
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: favorites.ids.contains(property.id)
+                            ? EduStayColors.error
+                            : EduStayColors.darkGreen,
+                        onTap: () =>
+                            context.read<FavoriteProvider>().toggle(property),
                       ),
                     ),
                     Positioned(
@@ -75,14 +100,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       right: 0,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(images.isEmpty ? 1 : images.length, (index) {
+                        children: List.generate(
+                            images.isEmpty ? 1 : images.length, (index) {
                           final selected = index == imageIndex;
                           return AnimatedContainer(
                             duration: const Duration(milliseconds: 160),
                             width: selected ? 18 : 6,
                             height: 6,
                             margin: const EdgeInsets.symmetric(horizontal: 3),
-                            decoration: BoxDecoration(color: selected ? Colors.white : Colors.white60, borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(
+                                color: selected ? Colors.white : Colors.white60,
+                                borderRadius: BorderRadius.circular(8)),
                           );
                         }),
                       ),
@@ -96,30 +124,51 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(property.title, style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w900)),
+                      Text(property.title,
+                          style: const TextStyle(
+                              fontSize: 25, fontWeight: FontWeight.w900)),
                       const SizedBox(height: 8),
                       Row(children: [
-                        const Icon(Icons.location_on_outlined, size: 18, color: StudyHubColors.secondaryText),
+                        const Icon(Icons.location_on_outlined,
+                            size: 18, color: EduStayColors.secondaryText),
                         const SizedBox(width: 4),
-                        Expanded(child: Text(property.location, style: const TextStyle(color: StudyHubColors.secondaryText))),
+                        Expanded(
+                            child: Text(property.location,
+                                style: const TextStyle(
+                                    color: EduStayColors.secondaryText))),
                       ]),
                       const SizedBox(height: 14),
                       Row(children: [
-                        Text('\$${property.price.toStringAsFixed(0)}', style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w900, color: StudyHubColors.darkGreen)),
-                        const Text('/month', style: TextStyle(color: StudyHubColors.secondaryText)),
+                        Text('\$${property.price.toStringAsFixed(0)}',
+                            style: const TextStyle(
+                                fontSize: 23,
+                                fontWeight: FontWeight.w900,
+                                color: EduStayColors.darkGreen)),
+                        const Text('/month',
+                            style:
+                                TextStyle(color: EduStayColors.secondaryText)),
                         const Spacer(),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(color: const Color(0xFFF7F8FA), borderRadius: BorderRadius.circular(18)),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                              color: const Color(0xFFF7F8FA),
+                              borderRadius: BorderRadius.circular(18)),
                           child: Row(children: [
-                            const Icon(Icons.star, color: StudyHubColors.orange, size: 18),
+                            const Icon(Icons.star,
+                                color: EduStayColors.orange, size: 18),
                             const SizedBox(width: 4),
-                            Text('${property.rating.toStringAsFixed(1)}  (${property.reviewCount} reviews)', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
+                            Text(
+                                '${property.rating.toStringAsFixed(1)}  (${property.reviewCount} reviews)',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w800, fontSize: 12)),
                           ]),
                         ),
                       ]),
                       const SizedBox(height: 24),
-                      const Text('Amenities', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+                      const Text('Amenities',
+                          style: TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w900)),
                       const SizedBox(height: 12),
                       GridView.count(
                         crossAxisCount: 3,
@@ -130,75 +179,131 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         childAspectRatio: 1.15,
                         children: property.amenities.map((amenity) {
                           return Container(
-                            decoration: BoxDecoration(color: const Color(0xFFF7F8FA), borderRadius: BorderRadius.circular(13)),
-                            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                              Icon(_amenityIcon(amenity), color: StudyHubColors.darkGreen, size: 22),
-                              const SizedBox(height: 8),
-                              Text(amenity, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
-                            ]),
+                            decoration: BoxDecoration(
+                                color: const Color(0xFFF7F8FA),
+                                borderRadius: BorderRadius.circular(13)),
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(_amenityIcon(amenity),
+                                      color: EduStayColors.darkGreen, size: 22),
+                                  const SizedBox(height: 8),
+                                  Text(amenity,
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w800)),
+                                ]),
                           );
                         }).toList(),
                       ),
                       if (property.amenities.isEmpty)
                         const Padding(
                           padding: EdgeInsets.only(bottom: 12),
-                          child: Text('No amenities listed yet.', style: TextStyle(color: StudyHubColors.secondaryText)),
+                          child: Text('No amenities listed yet.',
+                              style: TextStyle(
+                                  color: EduStayColors.secondaryText)),
                         ),
                       const SizedBox(height: 24),
-                      const Text('Description', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+                      const Text('Description',
+                          style: TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w900)),
                       const SizedBox(height: 10),
-                      Text(property.description, style: const TextStyle(color: StudyHubColors.secondaryText, height: 1.5)),
+                      Text(property.description,
+                          style: const TextStyle(
+                              color: EduStayColors.secondaryText, height: 1.5)),
                       const SizedBox(height: 24),
-                      const Text('Owner Info', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+                      const Text('Owner Info',
+                          style: TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w900)),
                       const SizedBox(height: 10),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: CircleAvatar(backgroundColor: StudyHubColors.darkGreen, child: Text(_initials(property.ownerName ?? 'Owner'), style: const TextStyle(color: Colors.white))),
-                        title: Text(property.ownerName ?? 'Property Owner', style: const TextStyle(fontWeight: FontWeight.w900)),
+                        leading: CircleAvatar(
+                            backgroundColor: EduStayColors.darkGreen,
+                            child: Text(
+                                _initials(property.ownerName ?? 'Owner'),
+                                style: const TextStyle(color: Colors.white))),
+                        title: Text(property.ownerName ?? 'Property Owner',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w900)),
                         subtitle: const Text('Property Owner'),
-                        trailing: IconButton(icon: const Icon(Icons.call_outlined), onPressed: () => _openWhatsApp(context, property.ownerWhatsapp)),
-                        onTap: () => Navigator.pushNamed(context, OwnerProfileScreen.route, arguments: property.ownerId),
+                        trailing: IconButton(
+                            icon: const Icon(Icons.call_outlined),
+                            onPressed: () =>
+                                _openWhatsApp(context, property.ownerWhatsapp)),
+                        onTap: () => Navigator.pushNamed(
+                            context, OwnerProfileScreen.route,
+                            arguments: property.ownerId),
                       ),
-                      const Text('Map Preview', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+                      const Text('Map Preview',
+                          style: TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w900)),
                       const SizedBox(height: 10),
                       InkWell(
-                        onTap: () => _openMap(context, property.latitude, property.longitude),
+                        onTap: () => _openMap(
+                            context, property.latitude, property.longitude),
                         borderRadius: BorderRadius.circular(16),
                         child: Container(
                           height: 120,
-                          decoration: BoxDecoration(color: StudyHubColors.softGreen, borderRadius: BorderRadius.circular(16)),
-                          child: const Center(child: Icon(Icons.location_pin, color: StudyHubColors.orange, size: 42)),
+                          decoration: BoxDecoration(
+                              color: EduStayColors.softGreen,
+                              borderRadius: BorderRadius.circular(16)),
+                          child: const Center(
+                              child: Icon(Icons.location_pin,
+                                  color: EduStayColors.orange, size: 42)),
                         ),
                       ),
                       const SizedBox(height: 24),
-                      const Text('Reviews', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+                      const Text('Reviews',
+                          style: TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w900)),
                       const SizedBox(height: 10),
                       if (property.reviews.isEmpty)
-                        const Text('No reviews yet.', style: TextStyle(color: StudyHubColors.secondaryText))
+                        const Text('No reviews yet.',
+                            style:
+                                TextStyle(color: EduStayColors.secondaryText))
                       else
                         ...property.reviews.map((review) => Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(color: const Color(0xFFF7F8FA), borderRadius: BorderRadius.circular(14)),
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Row(children: [
-                                Text(review.userName, style: const TextStyle(fontWeight: FontWeight.w900)),
-                                const Spacer(),
-                                const Icon(Icons.star, color: StudyHubColors.orange, size: 16),
-                                Text('${review.rating}'),
-                              ]),
-                              if ((review.createdAt ?? '').isNotEmpty)
-                                Text(review.createdAt!, style: const TextStyle(color: StudyHubColors.secondaryText, fontSize: 11)),
-                              if ((review.comment ?? '').isNotEmpty) ...[
-                                const SizedBox(height: 8),
-                                Text(review.comment!, style: const TextStyle(fontSize: 12)),
-                              ],
-                              if ((review.ownerReply ?? '').isNotEmpty) ...[
-                                const SizedBox(height: 8),
-                                Text('Owner reply: ${review.ownerReply!}', style: const TextStyle(color: StudyHubColors.secondaryText, fontSize: 12)),
-                              ],
-                            ]),
-                          )),
+                              margin: const EdgeInsets.only(bottom: 10),
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                  color: const Color(0xFFF7F8FA),
+                                  borderRadius: BorderRadius.circular(14)),
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(children: [
+                                      Text(review.userName,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w900)),
+                                      const Spacer(),
+                                      const Icon(Icons.star,
+                                          color: EduStayColors.orange,
+                                          size: 16),
+                                      Text('${review.rating}'),
+                                    ]),
+                                    if ((review.createdAt ?? '').isNotEmpty)
+                                      Text(review.createdAt!,
+                                          style: const TextStyle(
+                                              color:
+                                                  EduStayColors.secondaryText,
+                                              fontSize: 11)),
+                                    if ((review.comment ?? '').isNotEmpty) ...[
+                                      const SizedBox(height: 8),
+                                      Text(review.comment!,
+                                          style: const TextStyle(fontSize: 12)),
+                                    ],
+                                    if ((review.ownerReply ?? '')
+                                        .isNotEmpty) ...[
+                                      const SizedBox(height: 8),
+                                      Text('Owner reply: ${review.ownerReply!}',
+                                          style: const TextStyle(
+                                              color:
+                                                  EduStayColors.secondaryText,
+                                              fontSize: 12)),
+                                    ],
+                                  ]),
+                            )),
                     ],
                   ),
                 ),
@@ -211,9 +316,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             bottom: 22,
             child: Row(
               children: [
-                Expanded(child: OutlinedButton(onPressed: () => Navigator.pushNamed(context, ChatScreen.route, arguments: property.ownerId), child: const Text('Chat'))),
+                Expanded(
+                    child: OutlinedButton(
+                        onPressed: () => Navigator.pushNamed(
+                            context, ChatScreen.route,
+                            arguments: property.ownerId),
+                        child: const Text('Chat'))),
                 const SizedBox(width: 10),
-                Expanded(child: StudyHubPrimaryButton(label: 'Book Now', onPressed: () => Navigator.pushNamed(context, BookingScreen.route, arguments: property.id))),
+                Expanded(
+                    child: EduStayPrimaryButton(
+                        label: 'Book Now',
+                        onPressed: () => Navigator.pushNamed(
+                            context, BookingScreen.route,
+                            arguments: property.id))),
               ],
             ),
           ),
@@ -233,7 +348,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .toList();
     if (parts.isEmpty) return 'O';
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
     return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
@@ -241,30 +360,42 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 }
 
 Future<void> _openWhatsApp(BuildContext context, String? number) async {
-  if (number == null || !(number.startsWith('+970') || number.startsWith('+972'))) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('WhatsApp number is not available for this contact.')));
+  if (number == null ||
+      !(number.startsWith('+970') || number.startsWith('+972'))) {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('WhatsApp number is not available for this contact.')));
     return;
   }
   final normalized = number.replaceAll('+', '').replaceAll(' ', '');
   final uri = Uri.parse('https://wa.me/$normalized');
-  if (!await launchUrl(uri, mode: LaunchMode.externalApplication) && context.mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open WhatsApp.')));
+  if (!await launchUrl(uri, mode: LaunchMode.externalApplication) &&
+      context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open WhatsApp.')));
   }
 }
 
-Future<void> _openMap(BuildContext context, double? latitude, double? longitude) async {
+Future<void> _openMap(
+    BuildContext context, double? latitude, double? longitude) async {
   if (latitude == null || longitude == null) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Property location is not available.')));
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Property location is not available.')));
     return;
   }
-  final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
-  if (!await launchUrl(uri, mode: LaunchMode.externalApplication) && context.mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open map.')));
+  final uri = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+  if (!await launchUrl(uri, mode: LaunchMode.externalApplication) &&
+      context.mounted) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Could not open map.')));
   }
 }
 
 class _RoundAction extends StatelessWidget {
-  const _RoundAction({required this.icon, required this.onTap, this.color = StudyHubColors.darkGreen});
+  const _RoundAction(
+      {required this.icon,
+      required this.onTap,
+      this.color = EduStayColors.darkGreen});
   final IconData icon;
   final VoidCallback onTap;
   final Color color;
@@ -274,7 +405,10 @@ class _RoundAction extends StatelessWidget {
     return CircleAvatar(
       radius: 20,
       backgroundColor: Colors.white,
-      child: IconButton(icon: Icon(icon, color: color, size: 20), onPressed: onTap, padding: EdgeInsets.zero),
+      child: IconButton(
+          icon: Icon(icon, color: color, size: 20),
+          onPressed: onTap,
+          padding: EdgeInsets.zero),
     );
   }
 }

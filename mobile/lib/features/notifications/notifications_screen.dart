@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/theme/studyhub_design.dart';
+import '../../core/theme/EduStay_design.dart';
 import '../../providers/notification_provider.dart';
-import '../../widgets/studyhub_components.dart';
+import '../../widgets/EduStay_components.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -17,7 +17,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<NotificationProvider>().load());
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => context.read<NotificationProvider>().load());
   }
 
   @override
@@ -26,7 +27,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
-        actions: [TextButton(onPressed: provider.markAllRead, child: const Text('Mark all read'))],
+        actions: [
+          TextButton(
+              onPressed: provider.markAllRead,
+              child: const Text('Mark all read'))
+        ],
       ),
       body: provider.loading
           ? const Center(child: CircularProgressIndicator())
@@ -38,18 +43,34 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   delay: Duration(milliseconds: index * 35),
                   child: Container(
                     padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(color: item.read ? Colors.white : StudyHubColors.softOrange, borderRadius: BorderRadius.circular(16), boxShadow: StudyHubShadows.soft),
+                    decoration: BoxDecoration(
+                        color:
+                            item.read ? Colors.white : EduStayColors.softOrange,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: EduStayShadows.soft),
                     child: Row(
                       children: [
-                        CircleAvatar(backgroundColor: item.read ? StudyHubColors.softGreen : StudyHubColors.orange, child: Icon(_icon(item.category), color: item.read ? StudyHubColors.darkGreen : Colors.white)),
+                        CircleAvatar(
+                            backgroundColor: item.read
+                                ? EduStayColors.softGreen
+                                : EduStayColors.orange,
+                            child: Icon(_icon(item.category),
+                                color: item.read
+                                    ? EduStayColors.darkGreen
+                                    : Colors.white)),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(item.title, style: const TextStyle(fontWeight: FontWeight.w900)),
+                              Text(item.title,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w900)),
                               const SizedBox(height: 4),
-                              Text(item.body, style: const TextStyle(color: StudyHubColors.secondaryText, fontSize: 12)),
+                              Text(item.body,
+                                  style: const TextStyle(
+                                      color: EduStayColors.secondaryText,
+                                      fontSize: 12)),
                             ],
                           ),
                         ),

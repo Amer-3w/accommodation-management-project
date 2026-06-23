@@ -12,7 +12,7 @@ class AuthService {
 
   final ApiClient _apiClient;
   final AuthRepository _repository;
-  static const _tokenKey = 'studyhub_token';
+  static const _tokenKey = 'EduStay_token';
 
   Future<String?> loadToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -27,12 +27,14 @@ class AuthService {
   }
 
   Future<User> login(String email, String password) async {
-    final json = await _repository.login({'email': email, 'password': password});
+    final json =
+        await _repository.login({'email': email, 'password': password});
     await _persistToken(json['token']);
     return User.fromJson(json['user']);
   }
 
-  Future<User> register(String name, String email, String phone, String password, String role, String city, String university) async {
+  Future<User> register(String name, String email, String phone,
+      String password, String role, String city, String university) async {
     final json = await _repository.register({
       'name': name,
       'email': email,
@@ -67,11 +69,14 @@ class AuthService {
   }
 
   Future<void> addWhatsappNumber(String countryCode, String number) async {
-    await _repository.addWhatsappNumber({'country_code': countryCode, 'number': number});
+    await _repository
+        .addWhatsappNumber({'country_code': countryCode, 'number': number});
   }
 
-  Future<void> updateWhatsappNumber(int id, String countryCode, String number) async {
-    await _repository.updateWhatsappNumber(id, {'country_code': countryCode, 'number': number});
+  Future<void> updateWhatsappNumber(
+      int id, String countryCode, String number) async {
+    await _repository.updateWhatsappNumber(
+        id, {'country_code': countryCode, 'number': number});
   }
 
   Future<void> deleteWhatsappNumber(int id) async {
