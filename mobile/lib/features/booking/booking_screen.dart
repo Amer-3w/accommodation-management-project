@@ -264,7 +264,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     arguments: created.id);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Booking failed. Please try again.')));
+                    const SnackBar(content: Text('Booking failed. Try different dates or check your connection.')));
               }
             }
           },
