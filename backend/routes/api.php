@@ -403,6 +403,43 @@ Route::middleware('auth:sanctum')->group(function (): void {
         return app(ListingController::class)->index($request);
     });
 
+    Route::get('/owner/bookings', function (Illuminate\Http\Request $request) {
+        $user = $request->user();
+        $bookings = \App\Models\Booking::with(['user', 'property.owner', 'property.images', 'payment'])
+            ->whereHas('property', fn($query) => $query->where('owner_id', $user?->id))
+            ->latest()
+            ->get();
+        return response()->json(['data' => $bookings]);
+    });
+
+    Route::put('/owner/bookings/{booking}/status', function (Illuminate\Http\Request $request, \App\Models\Booking $booking) {
+        $user = $request->user();
+        abort_if((int) $booking->property->owner_id !== (int) $user->id, 403);
+        $validated = $request->validate([
+            'status' => ['required', 'in:approved,rejected,cancelled,completed'],
+        ]);
+        $booking->update(['status' => $validated['status']]);
+        return response()->json($booking->load(['user', 'property.owner', 'property.images', 'payment']));
+    });
+
+    Route::get('/owner/tenants', function (Illuminate\Http\Request $request) {
+        $user = $request->user();
+        $tenants = \App\Models\User::whereHas('bookings', function ($query) use ($user) {
+            $query->whereHas('property', fn($q) => $q->where('owner_id', $user?->id))
+                  ->whereIn('status', ['approved', 'confirmed', 'paid', 'completed']);
+        })->get();
+        return response()->json(['data' => $tenants]);
+    });
+
+    Route::get('/owner/payments', function (Illuminate\Http\Request $request) {
+        $user = $request->user();
+        $payments = \App\Models\Payment::with(['booking.user', 'booking.property.owner', 'booking.property.images'])
+            ->whereHas('booking.property', fn($query) => $query->where('owner_id', $user?->id))
+            ->latest()
+            ->get();
+        return response()->json(['data' => $payments]);
+    });
+
     Route::get('/owner/reports', function (Illuminate\Http\Request $request) {
         $user = $request->user();
         $properties = \App\Models\Listing::query()->where('owner_id', $user?->id)->count();

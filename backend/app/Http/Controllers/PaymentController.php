@@ -39,10 +39,10 @@ class PaymentController extends Controller
 
         $validated = $request->validate([
             'booking_id' => ['required', 'exists:bookings,id', 'unique:payments,booking_id'],
-            'amount' => ['required', 'numeric', 'min:0'],
+            'amount' => ['nullable', 'numeric', 'min:0'],
             'method' => ['required', Rule::in(['cash', 'card'])],
             'status' => ['nullable', Rule::in(['pending', 'paid', 'failed', 'refunded'])],
-            'reference' => ['required', 'string', 'max:255', 'unique:payments,reference'],
+            'reference' => ['nullable', 'string', 'max:255', 'unique:payments,reference'],
             'paid_at' => ['nullable', 'date'],
             'notes' => ['nullable', 'string'],
         ]);
@@ -53,10 +53,10 @@ class PaymentController extends Controller
 
         $payment = Payment::create([
             'booking_id' => $validated['booking_id'],
-            'amount' => $validated['amount'],
+            'amount' => $validated['amount'] ?? $booking->final_total,
             'method' => $validated['method'],
             'status' => $validated['status'] ?? 'pending',
-            'reference' => $validated['reference'],
+            'reference' => $validated['reference'] ?? 'PAY-' . $booking->id . '-' . now()->timestamp,
             'paid_at' => $validated['paid_at'] ?? null,
             'notes' => $validated['notes'] ?? null,
         ]);

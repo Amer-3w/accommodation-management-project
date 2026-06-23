@@ -7,10 +7,13 @@ import '../../providers/auth_provider.dart';
 import '../chat/inbox_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../profile/profile_screen.dart';
+import 'owner_bookings_screen.dart';
+import 'owner_payments_screen.dart';
 import 'owner_properties_screen.dart';
 import 'owner_property_form_screen.dart';
 import 'owner_profile_screen.dart';
 import 'owner_reviews_screen.dart';
+import 'owner_tenants_screen.dart';
 
 const _ownerModulesList = [
   _OwnerModule(Icons.analytics_outlined, 'Analytics'),
@@ -194,9 +197,9 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
       'Reviews' => const OwnerReviewsScreen(),
       'Notifications' => const NotificationsScreen(),
       'Profile' => const ProfileScreen(),
-      'Bookings' => const _SimpleOwnerModule(title: 'Bookings'),
-      'Payments' => const _SimpleOwnerModule(title: 'Payments'),
-      'Tenants' => const _SimpleOwnerModule(title: 'Tenants'),
+      'Bookings' => const OwnerBookingsScreen(),
+      'Payments' => const OwnerPaymentsScreen(),
+      'Tenants' => const OwnerTenantsScreen(),
       _ => _analytics(),
     };
   }

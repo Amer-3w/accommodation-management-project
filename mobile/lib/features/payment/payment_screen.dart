@@ -49,15 +49,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Use the backend-provided values directly from the booking object
-    final double basePrice = booking?.basePrice ?? 0.0;
-    final int days = booking?.numberOfDays ?? 1;
-    final int months = (days / 30).ceil() < 1 ? 1 : (days / 30).ceil();
-    final double totalRent = booking?.baseTotal ?? (basePrice * months);
-    final double deposit = booking?.securityDeposit ?? basePrice;
-    final double fee = booking?.serviceFee ?? 50.0;
-    final double discountPct = booking?.discountPercent ?? 0.0;
-    final double discountVal = booking?.discountAmount ?? 0.0;
     final double finalAmount = booking?.finalTotal ?? 0.0;
 
     return Scaffold(
@@ -138,37 +129,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       : 'Enter cardholder name'),
             ],
             const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                  color: const Color(0xFFF7F8FA),
-                  borderRadius: BorderRadius.circular(16)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Payment Summary',
-                      style: TextStyle(fontWeight: FontWeight.w900)),
-                  const SizedBox(height: 12),
-                  _SummaryRow(
-                      label: 'Monthly rent ($months mos)',
-                      value: '\$${totalRent.toStringAsFixed(2)}'),
-                  _SummaryRow(
-                      label: 'Security deposit',
-                      value: '\$${deposit.toStringAsFixed(2)}'),
-                  _SummaryRow(
-                      label: 'Service fee',
-                      value: '\$${fee.toStringAsFixed(2)}'),
-                  if (discountPct > 0)
-                    _SummaryRow(
-                        label: 'Owner Discount ($discountPct%)',
-                        value: '-\$${discountVal.toStringAsFixed(2)}'),
-                  const Divider(),
-                  _SummaryRow(
-                      label: 'Total Amount',
-                      value: '\$${finalAmount.toStringAsFixed(2)}',
-                      strong: true),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Total Amount',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w900, fontSize: 16)),
+                Text('\$${finalAmount.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 22,
+                        color: EduStayColors.darkGreen)),
+              ],
             ),
           ],
         ),
@@ -251,32 +223,6 @@ class _MethodTile extends StatelessWidget {
           ]),
         ]),
       ),
-    );
-  }
-}
-
-class _SummaryRow extends StatelessWidget {
-  const _SummaryRow(
-      {required this.label, required this.value, this.strong = false});
-  final String label;
-  final String value;
-  final bool strong;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(children: [
-        Text(label,
-            style: TextStyle(
-                fontWeight: strong ? FontWeight.w900 : FontWeight.w500)),
-        const Spacer(),
-        Text(value,
-            style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: strong ? 19 : 13,
-                color: strong ? EduStayColors.darkGreen : EduStayColors.text)),
-      ]),
     );
   }
 }

@@ -86,6 +86,36 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
     return base * discountFactor;
   }
 
+  Future<void> deleteProperty() async {
+    if (editing == null) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Delete Property'),
+        content: const Text('Are you sure you want to delete this property? This action cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: EduStayColors.error),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) {
+      try {
+        await context.read<PropertyRepository>().delete(editing!.id);
+        if (mounted) Navigator.pop(context);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Delete failed: $e')));
+        }
+      }
+    }
+  }
+
   Future<void> save() async {
     if (!formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -140,12 +170,9 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
       if (editing != null) {
         propertyId = editing!.id;
       } else {
-        // Backend ListingController::store returns the model JSON directly
-        // (not wrapped in {'data': ...}), so 'id' is at the top level.
         propertyId = response['id'] is int
             ? response['id'] as int
             : int.tryParse(response['id']?.toString() ?? '');
-        // Fallback in case response is nested
         propertyId ??= response['data'] is Map
             ? (response['data']['id'] is int
                 ? response['data']['id'] as int
@@ -155,14 +182,10 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
 
       if (propertyId != null && propertyId > 0) {
         for (final imageId in deletedImageIds) {
-          try {
-            await repo.deleteImage(propertyId, imageId);
-          } catch (_) {}
+          try { await repo.deleteImage(propertyId, imageId); } catch (_) {}
         }
         for (final file in images) {
-          try {
-            await repo.uploadImage(propertyId, file);
-          } catch (e) {
+          try { await repo.uploadImage(propertyId, file); } catch (e) {
             debugPrint('Image upload failed: $e');
           }
         }
@@ -176,7 +199,7 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
             content: Text('Failed to save property: ${networkError.toString().replaceAll(RegExp(r'Exception:?\s*'), '')}')));
         setState(() => saving = false);
       }
-      return; // Don't pop on failure, let user retry
+      return;
     }
     if (mounted) {
       setState(() => saving = false);
@@ -363,18 +386,18 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
                 label: 'Contact Email',
                 hint: 'owner@example.com'),
             const SizedBox(height: 12),
-            // Phone number with country code — aligned using IntrinsicHeight for matching heights
-            IntrinsicHeight(
-              child: Row(children: [
+            // Phone number with country code — aligned using matching InputDecoration
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 SizedBox(
                   width: 95,
                   child: DropdownButtonFormField<String>(
                     value: contactCountryCode,
                     decoration: const InputDecoration(
                       labelText: 'Code',
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 14),
                       isDense: true,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 14),
                     ),
                     items: const ['+970', '+972', '+1']
                         .map((c) =>
@@ -392,7 +415,7 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
                       hint: '599123456',
                       keyboardType: TextInputType.number),
                 ),
-              ]),
+              ],
             ),
             const SizedBox(height: 20),
             const Text('Property Gallery Images',
@@ -465,6 +488,25 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
               loading: saving,
               onPressed: save,
             ),
+            if (editing != null) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: EduStayColors.error,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                  ),
+                  icon: const Icon(Icons.delete_outline),
+                  label: const Text('Delete Property',
+                      style: TextStyle(fontWeight: FontWeight.w900)),
+                  onPressed: deleteProperty,
+                ),
+              ),
+            ],
           ],
         ),
       ),
