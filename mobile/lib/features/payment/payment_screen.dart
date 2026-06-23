@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme/EduStay_design.dart';
-import '../../models/booking.dart';
 import '../../providers/booking_provider.dart';
 import '../../services/payment_service.dart';
 import '../../widgets/EduStay_components.dart';
@@ -24,40 +23,35 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final holder = TextEditingController();
   String method = 'card';
   bool loading = false;
-  Booking? booking;
   int? bookingId;
-  bool loadError = false;
+  double amount = 0.0;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (bookingId != null) return;
     final arg = ModalRoute.of(context)!.settings.arguments;
-    if (arg is int) {
+    if (arg is Map) {
+      bookingId = arg['bookingId'] as int?;
+      final a = arg['amount'];
+      if (a is double) {
+        amount = a;
+      } else if (a is int) {
+        amount = a.toDouble();
+      } else if (a is String) {
+        amount = double.tryParse(a) ?? 0.0;
+      }
+    } else if (arg is int) {
       bookingId = arg;
-      context.read<BookingProvider>().details(arg).then((value) {
-        if (mounted) setState(() {
-          booking = value;
-          loadError = false;
-        });
-      }).catchError((error) {
-        if (mounted) setState(() => loadError = true);
-        debugPrint('Payment load error: $error');
+      // Load booking to get amount for backward compatibility
+      context.read<BookingProvider>().details(arg).then((b) {
+        if (mounted) setState(() => amount = b.finalTotal > 0 ? b.finalTotal : (b.baseTotal + b.securityDeposit));
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Use finalTotal from backend (what the booking screen calculated and sent)
-    // If unavailable, calculate from stored values
-    final double bookingTotal = booking?.finalTotal ?? 0.0;
-    final double baseTotal = booking?.baseTotal ?? 0.0;
-    final double deposit = booking?.securityDeposit ?? 0.0;
-    final double finalAmount = bookingTotal > 0 
-        ? bookingTotal 
-        : (baseTotal + deposit);
-
     return Scaffold(
       appBar: AppBar(title: const Text('Payment')),
       body: Form(
@@ -65,17 +59,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 96),
           children: [
-            if (loadError)
-              Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: EduStayColors.error.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text('Could not load booking details. Please try again.',
-                    style: TextStyle(color: EduStayColors.error)),
-              ),
             const Text('Payment Method',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
             const SizedBox(height: 10),
@@ -93,7 +76,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 selected: method == 'cash',
                 onTap: () => setState(() => method = 'cash')),
             const SizedBox(height: 18),
-
             if (method == 'card') ...[
               EduStayTextField(
                   controller: card,
@@ -140,9 +122,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Total Amount',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w900, fontSize: 16)),
-                Text('\$${finalAmount.toStringAsFixed(2)}',
+                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                Text('\$${amount.toStringAsFixed(2)}',
                     style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 22,
@@ -155,13 +136,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.all(18),
         child: EduStayPrimaryButton(
-          label: booking == null
+          label: bookingId == null
               ? 'Loading...'
-              : 'Pay \$${finalAmount.toStringAsFixed(2)}',
+              : 'Pay \$${amount.toStringAsFixed(2)}',
           color: EduStayColors.success,
           loading: loading,
           onPressed: () async {
-            if (booking == null) return;
+            if (bookingId == null) return;
             if (method == 'card' && !formKey.currentState!.validate()) return;
             setState(() => loading = true);
             try {
@@ -175,8 +156,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
               }
             } catch (_) {
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Payment failed. Please try again.')));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content:
+                        Text('Payment failed. Please try again.')));
               }
             } finally {
               if (mounted) setState(() => loading = false);

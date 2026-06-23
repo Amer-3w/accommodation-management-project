@@ -260,8 +260,13 @@ class _BookingScreenState extends State<BookingScreen> {
                     financials: financials);
             if (context.mounted) {
               if (created != null) {
+                // Pass both the booking ID AND the pre-calculated total
+                // so payment screen always shows the correct amount
                 Navigator.pushReplacementNamed(context, PaymentScreen.route,
-                    arguments: created.id);
+                    arguments: {
+                      'bookingId': created.id,
+                      'amount': financials['final_total'],
+                    });
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Booking failed. Try different dates or check your connection.')));

@@ -445,7 +445,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
         $properties = \App\Models\Listing::query()->where('owner_id', $user?->id)->count();
         $activeBookings = \App\Models\Booking::query()->whereHas('property', fn($query) => $query->where('owner_id', $user?->id))->whereIn('status', ['approved', 'confirmed', 'paid'])->count();
         $pendingBookings = \App\Models\Booking::query()->whereHas('property', fn($query) => $query->where('owner_id', $user?->id))->where('status', 'pending')->count();
-        $revenue = \App\Models\Payment::query()->whereHas('booking.property', fn($query) => $query->where('owner_id', $user?->id))->sum('amount');
+        $revenue = \App\Models\Booking::query()
+            ->whereHas('property', fn($query) => $query->where('owner_id', $user?->id))
+            ->whereIn('status', ['approved', 'paid', 'confirmed', 'completed'])
+            ->sum('final_total');
         $reviews = \App\Models\Review::query()->whereHas('property', fn($query) => $query->where('owner_id', $user?->id))->count();
         $unreadMessages = \App\Models\Message::query()->where('receiver_id', $user?->id)->whereNull('read_at')->count();
 
