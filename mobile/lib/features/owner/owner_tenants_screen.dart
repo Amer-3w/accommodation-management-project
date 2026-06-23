@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/theme/EduStay_design.dart';
+import '../chat/inbox_screen.dart';
 
 class OwnerTenantsScreen extends StatefulWidget {
   const OwnerTenantsScreen({super.key});
@@ -46,6 +47,9 @@ class _OwnerTenantsScreenState extends State<OwnerTenantsScreen> {
                       itemCount: tenants.length,
                       itemBuilder: (_, i) {
                         final t = tenants[i] as Map<String, dynamic>;
+                        final name = t['name']?.toString() ?? 'Tenant';
+                        final email = t['email']?.toString() ?? '';
+                        final id = t['id'];
                         return Card(
                           margin: const EdgeInsets.only(bottom: 10),
                           shape: RoundedRectangleBorder(
@@ -54,19 +58,27 @@ class _OwnerTenantsScreenState extends State<OwnerTenantsScreen> {
                             leading: CircleAvatar(
                               backgroundColor: EduStayColors.softGreen,
                               child: Text(
-                                (t['name'] ?? '?').toString()[0].toUpperCase(),
+                                name[0].toUpperCase(),
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w900)),
                             ),
-                            title: Text(t['name']?.toString() ?? 'Tenant',
+                            title: Text(name,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w900)),
-                            subtitle: Text(t['email']?.toString() ?? '',
+                            subtitle: Text(email,
                                 style: const TextStyle(
                                     color: EduStayColors.secondaryText,
                                     fontSize: 12)),
-                            trailing: const Icon(Icons.verified,
-                                color: EduStayColors.success, size: 20),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.chat_bubble_outline,
+                                  color: EduStayColors.darkGreen),
+                              onPressed: () => Navigator.pushNamed(
+                                  context, InboxScreen.route,
+                                  arguments: {
+                                    'user_id': id,
+                                    'name': name
+                                  }),
+                            ),
                           ),
                         );
                       },

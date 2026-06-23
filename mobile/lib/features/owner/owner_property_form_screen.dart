@@ -396,47 +396,51 @@ class _OwnerPropertyFormScreenState extends State<OwnerPropertyFormScreen> {
                 label: 'Contact Email',
                 hint: 'owner@example.com'),
             const SizedBox(height: 12),
-            // Phone number with country code - aligned using same height fields
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 100,
-                  child: TextFormField(
-                    controller: TextEditingController(text: contactCountryCode),
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Code',
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
-                    ),
-                    onTap: () => showDialog<String>(
-                      context: context,
-                      builder: (_) => SimpleDialog(
-                        title: const Text('Select Code'),
-                        children: ['+970', '+972', '+1'].map((code) =>
-                          SimpleDialogOption(
-                            onPressed: () {
-                              Navigator.pop(context, code);
-                              setState(() => contactCountryCode = code);
-                            },
-                            child: Text(code, style: const TextStyle(fontWeight: FontWeight.w800)),
-                          ),
-                        ).toList(),
-                      ),
-                    ),
+            // Phone number row — simplified approach with consistent sizing
+            const Text('Phone Number',
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: EduStayColors.text)),
+            const SizedBox(height: 8),
+            Row(children: [
+              Container(
+                width: 100,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  border: Border.all(color: EduStayColors.line),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: contactCountryCode,
+                    isDense: true,
+                    items: const ['+970', '+972', '+1']
+                        .map((c) => DropdownMenuItem(
+                            value: c,
+                            child: Text(c,
+                                style:
+                                    const TextStyle(fontWeight: FontWeight.w800))))
+                        .toList(),
+                    onChanged: (v) =>
+                        setState(() => contactCountryCode = v ?? '+970'),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: EduStayTextField(
-                      controller: contactPhone,
-                      label: 'Phone Number',
-                      hint: '599123456',
-                      keyboardType: TextInputType.number),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextFormField(
+                  controller: contactPhone,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    hintText: '599123456',
+                    isDense: true,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ]),
             const SizedBox(height: 20),
             const Text('Property Gallery Images',
                 style: TextStyle(
