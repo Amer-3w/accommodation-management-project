@@ -40,7 +40,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
   Map<String, dynamic> _calculateFinancials() {
     final rent = _effectivePrice();
-    final discPct = (property?.stayDuration ?? 0).toDouble();
+    final discPct = _effectiveDiscount().toDouble();
     int months = 1;
     int numberOfDays = 30;
     if (from != null && to != null) {
@@ -67,8 +67,6 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   double _effectivePrice() {
-    // Use price from the properties list if available (it loads faster)
-    // Fall back to the selected property details
     final pid = selectedPropertyId;
     if (pid != null) {
       final props = context.read<PropertyProvider>().properties;
@@ -78,6 +76,18 @@ class _BookingScreenState extends State<BookingScreen> {
       }
     }
     return property?.price ?? 0.0;
+  }
+
+  int _effectiveDiscount() {
+    final pid = selectedPropertyId;
+    if (pid != null) {
+      final props = context.read<PropertyProvider>().properties;
+      final found = props.where((p) => p.id == pid).toList();
+      if (found.isNotEmpty) {
+        return found.first.stayDuration;
+      }
+    }
+    return property?.stayDuration ?? 0;
   }
 
   @override
