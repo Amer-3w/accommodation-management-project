@@ -1,0 +1,16 @@
+# Project deliverables (not source code)
+Final Report.pdf
+Graduation-project-presentation.pptx
+presentation-guide-ar.txt
+presentation-guide-en.txt
+
+# IDE
+.qodo/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
